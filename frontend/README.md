@@ -34,3 +34,12 @@ This command will remove images, containers, volumes (e.g., dangling volumes suc
 ```bash
 make clean
 ```
+
+### (Optional) Overriding Application Properties
+
+You can customize certain environment variables defined in `application.properties` by creating a `.env` file based on the configuration of the host machine where you're running this application. To ensure successful overrides, it's important to import `.env` after `application.properties` (This is already how it is set up in the `Makefile`). Here's an example:
+
+```bash
+# .env
+PORT=8080 # The port to which the application will be exposed.
+```
