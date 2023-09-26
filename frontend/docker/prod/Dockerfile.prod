@@ -1,0 +1,29 @@
+# ------------- #
+#  Build Stage  #
+# ------------- #
+FROM node:18.14-alpine as build-stage
+
+# Set the working directory
+WORKDIR /app
+
+# Install the dependencies
+COPY package*.json ./
+RUN npm install
+
+# Bundle the app source
+COPY . .
+
+# Build the app
+RUN npm run build
+
+# ------------------ #
+#  Production Stage  #
+# ------------------ #
+FROM nginx:stable-alpine as production-stage
+
+# Copy the files built from the build stage to the Nginx HTML directory
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+# Expose port 80 and start nginx as the main process
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

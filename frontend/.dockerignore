@@ -1,0 +1,14 @@
+# Husky
+.husky/
+
+# Docker
+docker/
+
+# Built ts files
+dist/
+
+# Dependency directories
+node_modules/
+
+# dotenv environment variable files
+.env*

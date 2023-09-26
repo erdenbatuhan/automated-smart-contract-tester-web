@@ -1,0 +1,12 @@
+# Docker Compose files
+docker-compose*.yml
+
+# All source files
+*.js
+*.jsx
+
+# Built files
+dist/
+
+# Dependency directories
+node_modules/

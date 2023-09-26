@@ -1,0 +1,18 @@
+FROM node:18.14-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Install the dependencies
+COPY package*.json ./
+RUN NODE_ENV=development npm install
+
+# Bundle the app source
+COPY . .
+
+# Expose the port
+ARG PORT
+EXPOSE $PORT
+
+# Start the app
+CMD [ "npm", "run", "serve" ]

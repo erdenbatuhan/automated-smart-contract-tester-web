@@ -1,0 +1,19 @@
+version: "3"
+services:
+  # Frontend
+  frontend:
+    container_name: frontend # Keep this the same with the service name for better compatibility with both Docker Swarm and Compose configurations
+    build:
+      context: .
+      dockerfile: docker/dev/Dockerfile.dev
+      args:
+        PORT: ${PORT}
+    restart: unless-stopped
+    networks:
+      application-network: # External network for accessing the backend application
+    ports:
+      - "${PORT}:${PORT}"
+networks:
+  application-network: # External network for accessing the backend application
+    name: automated-smart-contract-tester_application-network
+    external: true
