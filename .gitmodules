@@ -1,0 +1,3 @@
+[submodule "automated-smart-contract-tester"]
+	path = backend
+	url = git@github.com:erdenbatuhan/automated-smart-contract-tester.git

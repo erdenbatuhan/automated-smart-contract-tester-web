@@ -1,0 +1,48 @@
+{
+  "name": "automated-smart-contract-tester-frontend",
+  "version": "1.0.0",
+  "description": "A client application that utilizes the services provided by the Automated Smart Contract Tester application",
+  "author": "Batuhan Erden",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erdenbatuhan/automated-smart-contract-tester-web.git"
+  },
+  "bugs": {
+    "url": "https://github.com/erdenbatuhan/automated-smart-contract-tester-web/issues"
+  },
+  "homepage": "https://github.com/erdenbatuhan/automated-smart-contract-tester-web#readme",
+  "scripts": {
+    "prepare": "cd .. && husky install frontend/.husky",
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --fix",
+    "*.{json,yml,css,md}": "prettier --write --ignore-unknown"
+  },
+  "dependencies": {
+    "core-js": "^3.8.3",
+    "vue": "^3.2.13"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.16",
+    "@babel/eslint-parser": "^7.12.16",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-vue": "^8.0.3",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.3"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}
