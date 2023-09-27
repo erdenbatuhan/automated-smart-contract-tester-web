@@ -6,7 +6,9 @@ const getInitialState = (previousState) => ({
 
 const state = () => getInitialState();
 
-const getters = {};
+const getters = {
+  alert: (state) => state.alert
+};
 
 const actions = {};
 

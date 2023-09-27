@@ -12,7 +12,7 @@ const logger = createLogger({
   logMutations: true // Whether to log mutations
 });
 
-export const store = createStore({
+const store = createStore({
   modules: {
     global: GlobalModule,
     user: UserModule
@@ -22,15 +22,24 @@ export const store = createStore({
       commit('global/resetState');
       commit('user/resetState');
     },
-    makeRequest: ({ commit }, { request, spinner = true }) => {
+    makeRequest: ({ commit }, { request, successMessage = 'Request successful!', ignoreError = false, spinner = true }) => {
       if (spinner) commit('global/setSpinner', true);
 
-      return request.catch((err) => {
-        commit('global/setAlert', err);
-      }).finally(() => {
-        if (spinner) commit('global/setSpinner', false);
-      });
+      return request
+        .then((response) => {
+          commit('global/setAlert', { ...response, data: { message: successMessage } });
+          return response.data;
+        }).catch((err) => {
+          if (ignoreError) return;
+
+          commit('global/setAlert', err);
+          return Promise.reject(err);
+        }).finally(() => {
+          if (spinner) commit('global/setSpinner', false);
+        });
     }
   },
   plugins: [logger] // Enable the logger as a plugin
 });
+
+export default store;

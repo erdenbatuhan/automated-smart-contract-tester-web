@@ -12,14 +12,14 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.response.use(
-  ({ data }) => data,
+  (response) => response,
   (error) => {
     if (error.response) {
       return Promise.reject(error.response);
     } else if (error.request) {
-      return Promise.reject({ data: { message: 'Network error' }, status: HttpStatusCode.InternalServerError });
+      return Promise.reject({ data: { error: { message: 'Network error' } }, status: HttpStatusCode.InternalServerError });
     } else {
-      return Promise.reject({ data: { message: 'Request setup error' }, status: HttpStatusCode.InternalServerError });
+      return Promise.reject({ data: { error: { message: 'Request setup error' } }, status: HttpStatusCode.InternalServerError });
     }
   }
 );
