@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div>
-      <form @submit="submitForm">
+      <form @submit.prevent="submitForm">
         <h2 class="font-weight-black">
           {{ actionText }}
         </h2>
@@ -18,7 +18,7 @@
           {{ passwordError }}
         </p>
 
-        <v-btn color="secondary" size="large" rounded="xl" @click="submitForm">
+        <v-btn type="submit" color="secondary" size="large" rounded="xl">
           <p class="font-weight-black">
             {{ actionText }}
           </p>
