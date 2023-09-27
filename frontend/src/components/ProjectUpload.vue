@@ -33,7 +33,7 @@
           <v-row>
             <v-col cols="10">
               <v-file-input
-                v-model="projectFileUploaded"
+                v-model="projectFiles"
                 label="Choose a file"
                 outlined
                 density="compact"
@@ -135,7 +135,7 @@ import projectServices from '@/api/backend/services/project';
 const store = useStore();
 
 const projectName = ref('');
-const projectFileUploaded = ref(null);
+const projectFiles = ref(null);
 const containerTimeout = ref(null);
 
 const availableTestExecutionArguments = ref(null);
@@ -159,8 +159,8 @@ const uploadProject = () => {
       }, {})
   };
 
-  console.log(projectConfig);
-  // Handle the file upload logic here
+  // TODO
+  console.log(projectName.value, projectFiles.value, projectConfig);
 };
 
 onMounted(() => {

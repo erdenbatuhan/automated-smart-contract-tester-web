@@ -1,9 +1,9 @@
 import axios from '@/api/backend';
 
-const AUTH_BASE_URL = `/auth`;
+const BASE_URL_AUTH = `/auth`;
 
 export default {
-  signup: (user) => axios.post(`${AUTH_BASE_URL}/signup`, user),
-  login: (user) => axios.post(`${AUTH_BASE_URL}/login`, user),
-  logout: () => axios.get(`${AUTH_BASE_URL}/logout`)
+  signup: (user) => axios.post(`${BASE_URL_AUTH}/signup`, user),
+  login: (user) => axios.post(`${BASE_URL_AUTH}/login`, user),
+  logout: () => axios.get(`${BASE_URL_AUTH}/logout`)
 };
