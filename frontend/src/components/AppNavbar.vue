@@ -1,33 +1,31 @@
 <template>
-  <v-container>
-    <nav>
-      <h2><a href="/"> Automated Smart Contract Tester </a></h2>
+  <nav>
+    <h2><a href="/"> Automated Smart Contract Tester </a></h2>
 
-      <ul v-if="authenticatedUser">
-        <li>
-          <p class="text-subtitle-2">
-            <strong>Logged in as:</strong> {{ authenticatedUser.email }}
-          </p>
-        </li>
+    <ul v-if="authenticatedUser">
+      <li>
+        <p class="text-subtitle-2">
+          <strong>Logged in as:</strong> {{ authenticatedUser.email }}
+        </p>
+      </li>
 
-        <li><a @click="logout"> Log out </a></li>
-      </ul>
+      <li><a @click="logout"> Log out </a></li>
+    </ul>
 
-      <ul v-else>
-        <li>
-          <router-link to="/login">
-            Log in
-          </router-link>
-        </li>
+    <ul v-else>
+      <li>
+        <router-link to="/login">
+          Log in
+        </router-link>
+      </li>
 
-        <li>
-          <router-link to="/signup">
-            Sign up
-          </router-link>
-        </li>
-      </ul>
-    </nav>
-  </v-container>
+      <li>
+        <router-link to="/signup">
+          Sign up
+        </router-link>
+      </li>
+    </ul>
+  </nav>
 </template>
 
 <script>
@@ -43,7 +41,7 @@ export default {
 
     return {
       authenticatedUser: computed(() => store.state['user'].authenticatedUser),
-      logout: () => store.dispatch(`user/logout`).finally(() => { router.push({ path: '/' }); })
+      logout: () => store.dispatch(`user/logout`).finally(() => { router.push({ path: '/login' }); })
     };
   }
 };
@@ -54,6 +52,7 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  margin: 1em 0;
 }
 
 nav ul {

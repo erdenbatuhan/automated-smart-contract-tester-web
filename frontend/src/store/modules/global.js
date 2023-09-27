@@ -7,7 +7,8 @@ const getInitialState = (previousState) => ({
 const state = () => getInitialState();
 
 const getters = {
-  alert: (state) => state.alert
+  alert: (state) => state.alert,
+  spinner: (state) => state.spinner
 };
 
 const actions = {};

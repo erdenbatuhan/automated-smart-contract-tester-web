@@ -8,6 +8,8 @@
     <!-- Router View-->
     <v-container>
       <app-alert />
+      <app-spinner />
+
       <router-view />
     </v-container>
 
@@ -22,13 +24,15 @@
 import AppNavbar from '@/components/AppNavbar.vue';
 import AppFooter from "@/components/AppFooter.vue";
 import AppAlert from "@/components/AppAlert.vue";
+import AppSpinner from "@/components/AppSpinner.vue";
 
 export default {
   name: 'App',
   components: {
     AppNavbar,
     AppFooter,
-    AppAlert
+    AppAlert,
+    AppSpinner
   },
   setup: () => {
     return {};

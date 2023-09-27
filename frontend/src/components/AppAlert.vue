@@ -1,12 +1,12 @@
 <template>
-  <v-container v-if="alertShown" class="alert-container">
+  <div v-if="alertShown" class="overlay-container">
     <!-- Overlay background -->
-    <div class="alert-overlay" />
+    <div class="overlay-bg" />
 
     <!-- Alert component -->
     <v-alert
       v-model="alertShown"
-      class="alert"
+      class="overlay-item"
       variant="tonal"
       border="top"
       :closable="true"
@@ -21,11 +21,11 @@
         {{ alertMessage }}
       </p>
     </v-alert>
-  </v-container>
+  </div>
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 
 export default {
@@ -40,7 +40,7 @@ export default {
     const alertReason = ref(null);
 
     watch(
-      () => store.getters['global/alert'],
+      computed(() => store.getters['global/alert']),
       (newAlert) => {
         if (!newAlert.status) { // Info
           alertType.value = "info";
@@ -75,29 +75,9 @@ export default {
 </script>
 
 <style scoped>
-.alert-container {
-  position: relative;
-}
+@import "@/assets/styles/overlay.css";
 
-.alert-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 999;
-  backdrop-filter: blur(5px);
-}
-
-.alert {
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  max-width: 80%;
-}
-
-.alert p {
+.overlay-container .overlay-item p {
   margin: 1em;
 }
 </style>

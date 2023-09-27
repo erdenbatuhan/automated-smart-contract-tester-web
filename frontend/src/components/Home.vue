@@ -1,9 +1,7 @@
 <template>
-  <v-container>
-    <div class="hello">
-      <h1> {{ msg }} </h1>
-    </div>
-  </v-container>
+  <div class="hello">
+    <h1> {{ msg }} </h1>
+  </div>
 </template>
 
 <script>
