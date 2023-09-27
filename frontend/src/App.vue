@@ -1,20 +1,30 @@
 <template>
   <img
     alt="Vue logo"
-    src="assets/logo.png"
+    src="@/assets/logo.png"
   >
 
   <HelloWorld msg="Welcome to Your Vue.js App" />
 </template>
 
 <script>
+import { computed } from 'vue';
+import { useStore } from 'vuex';
+
 import HelloWorld from './components/HelloWorld.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld,
+    HelloWorld
   },
+  setup: () => {
+    const store = useStore();
+
+    return {
+      userLoggedIn: computed(() => store.getters['user/isUserLoggedIn'])
+    };
+  }
 };
 </script>
 

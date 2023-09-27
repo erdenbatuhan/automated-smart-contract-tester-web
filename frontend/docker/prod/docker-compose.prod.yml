@@ -11,7 +11,10 @@ services:
       application-network: # External network for accessing the backend application
     ports:
       - "${PORT}:80"
+    environment:
+      PORT: ${PORT}
+      NODE_ENV: production
 networks:
   application-network: # External network for accessing the backend application
-    name: automated-smart-contract-tester_application-network
+    name: ${BACKEND_NETWORK}
     external: true

@@ -3,10 +3,15 @@ module.exports = {
   parser: 'vue-eslint-parser',
   parserOptions: {
     parser: '@babel/eslint-parser',
-    sourceType: 'module',
+    sourceType: 'module'
   },
-  extends: ['eslint:recommended', 'airbnb-base', 'plugin:vue/vue3-recommended'],
+  extends: ['eslint:recommended', 'plugin:vue/vue3-recommended'],
+  ignorePatterns: ['node_modules', 'dist'],
   rules: {
     'max-len': ['error', 130],
-  },
+    'no-underscore-dangle': ['off'],
+    'no-unused-vars': ['warn'],
+    'comma-dangle': ['error', 'never'],
+    'semi': ['error', 'always']
+  }
 };

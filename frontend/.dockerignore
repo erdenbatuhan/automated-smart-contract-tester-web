@@ -10,5 +10,5 @@ dist/
 # Dependency directories
 node_modules/
 
-# dotenv environment variable files
-.env*
+# local environment variable files
+.env*.local

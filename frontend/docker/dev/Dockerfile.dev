@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install the dependencies
 COPY package*.json ./
-RUN NODE_ENV=development npm install
+RUN npm install
 
 # Bundle the app source
 COPY . .

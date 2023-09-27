@@ -1,9 +1,13 @@
-include application.properties
+include .env
 
-ENV_FILES = \
-	--env-file application.properties \
-	$(if $(wildcard .env), --env-file .env)
+ENV_FILES = --env-file .env
 COMPOSE_FILE = -f docker/$(ENV)/docker-compose.$(ENV).yml
+
+# Include .env.local if it exists
+ifneq (,$(wildcard .env.local))
+  include .env.local
+  ENV_FILES += --env-file .env.local
+endif
 
 .PHONY: stop
 stop:
