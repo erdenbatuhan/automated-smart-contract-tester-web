@@ -3,13 +3,14 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import '@mdi/font/css/materialdesignicons.css';
 
 import { createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as dataTableComponents from "vuetify/labs/VDataTable";
+import * as directives from 'vuetify/directives';
 import { aliases, fa } from 'vuetify/iconsets/fa';
 import { mdi } from 'vuetify/iconsets/mdi';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
 
 const vuetify = createVuetify({
-  components,
+  components: { ...components, ...dataTableComponents },
   directives,
   theme: {
     defaultTheme: 'theme',
@@ -20,6 +21,7 @@ const vuetify = createVuetify({
           surface: '#F5F5F5',
           primary: '#2c3e50',
           secondary: '#FEE996',
+          tertiary: '#2F4F4F',
           info: '#2196F3',
           // success: '#4CAF50',
           success: '#42B983',

@@ -1,16 +1,38 @@
 <template>
-  <div class="hello">
-    <h1> {{ msg }} </h1>
+  <div>
+    <v-card>
+      <v-tabs v-model="tab" centered>
+        <v-tab class="tab" value="tab-all_projects">
+          All Projects
+          <i class="fa fa-book" aria-hidden="true" />
+        </v-tab>
+
+        <v-tab class="tab" value="tab-project_upload">
+          Project Upload
+          <i class="fa fa-upload" aria-hidden="true" />
+        </v-tab>
+      </v-tabs>
+
+      <v-window v-model="tab">
+        <v-window-item value="tab-all_projects">
+          <ProjectView />
+        </v-window-item>
+
+        <v-window-item value="tab-project_upload">
+          <ProjectUpload />
+        </v-window-item>
+      </v-window>
+    </v-card>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Home',
-  props: {
-    msg: { type: String, default: 'Welcome!' }
-  }
-};
+<script setup>
+import { ref } from 'vue';
+
+import ProjectView from '@/components/ProjectView.vue';
+import ProjectUpload from '@/components/ProjectUpload.vue';
+
+const tab = ref(null);
 </script>
 
 <style scoped>
@@ -30,5 +52,9 @@ li {
 
 a {
   color: #42b983;
+}
+
+.tab .fa {
+  margin-left: 5px;
 }
 </style>

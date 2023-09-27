@@ -18,14 +18,14 @@ const actions = {
     const successMessage =  `Successfully signed up as ${user.email}.`;
 
     return dispatch('makeRequest', { request, successMessage }, { root: true })
-      .then(({user}) => commit('setAuthenticatedUser', user));
+      .then(({ user }) => commit('setAuthenticatedUser', user));
   },
   login: ({ commit, dispatch }, user) => {
     const request = authServices.login(user);
     const successMessage = `Successfully logged in as ${user.email}.`;
 
     return dispatch('makeRequest', { request, successMessage }, { root: true })
-      .then(({user}) => commit('setAuthenticatedUser', user));
+      .then(({ user }) => commit('setAuthenticatedUser', user));
   },
   logout: ({ state, commit, dispatch }) => {
     const request = authServices.logout();

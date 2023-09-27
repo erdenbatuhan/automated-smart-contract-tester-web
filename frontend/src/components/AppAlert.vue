@@ -39,23 +39,25 @@ export default {
     const alertMessage = ref(null);
     const alertReason = ref(null);
 
+    const isSuccessfulResponse = ({ status }) => status && status >= 200 && status < 300;
+
     watch(
       computed(() => store.getters['global/alert']),
       (newAlert) => {
-        if (!newAlert.status) { // Info
+        if (!newAlert?.status) { // Info
           alertType.value = "info";
           alertTitle.value = "Info";
-          alertMessage.value = newAlert.data.message;
+          alertMessage.value = newAlert?.data?.message;
           alertReason.value = null;
-        } else if (newAlert.data.error) { // Error
+        } else if (!isSuccessfulResponse(newAlert)) { // Error
           alertType.value = "error";
-          alertTitle.value = `Error (${newAlert.status} - ${newAlert.statusText})`;
-          alertMessage.value = newAlert.data.error.message;
-          alertReason.value = newAlert.data.error.reason;
+          alertTitle.value = `Error (${newAlert?.status} - ${newAlert?.statusText})`;
+          alertMessage.value = newAlert?.data?.error?.message ?? newAlert.data;
+          alertReason.value = newAlert?.data?.error?.reason;
         } else { // Success
           alertType.value = "success";
-          alertTitle.value = `Success (${newAlert.status} - ${newAlert.statusText})`;
-          alertMessage.value = newAlert.data.message;
+          alertTitle.value = `Success (${newAlert?.status} - ${newAlert?.statusText})`;
+          alertMessage.value = newAlert?.data;
           alertReason.value = null;
         }
 

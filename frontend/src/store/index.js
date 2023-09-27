@@ -22,12 +22,12 @@ const store = createStore({
       commit('global/resetState');
       commit('user/resetState');
     },
-    makeRequest: ({ commit }, { request, successMessage = 'Request successful!', ignoreError = false, spinner = true }) => {
+    makeRequest: ({ commit }, { request, successMessage, spinner = true, ignoreError = false }) => {
       if (spinner) commit('global/setSpinner', true);
 
       return request
         .then((response) => {
-          commit('global/setAlert', { ...response, data: { message: successMessage } });
+          if (successMessage) commit('global/setAlert', { ...response, data: successMessage });
           return response.data;
         }).catch((err) => {
           if (ignoreError) return;
