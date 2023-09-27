@@ -17,7 +17,7 @@
                     {{ item.status }}
 
                     <v-tooltip activator="parent" location="top">
-                      Docker Exit Code: {{ item.statusCode || '?' }}
+                      Docker Exit Code: {{ item.statusCode }}
                     </v-tooltip>
                   </v-chip>
                 </div>
@@ -70,7 +70,7 @@ const formatDate = (dateString) => {
 const getProjectView = ({ projectName, output, createdAt, updatedAt, __v: version }) => ({
   projectName,
   status: output?.status ?? 'Pending',
-  statusCode: output?.container?.statusCode,
+  statusCode: String(output?.container?.statusCode),
   numContracts: output?.container?.output?.overall?.numContracts ?? '-',
   numTests: output?.container?.output?.overall?.numTests ?? '-',
   totalGas: output?.container?.output?.overall?.totalGas ?? '-',
