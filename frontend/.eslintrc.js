@@ -12,8 +12,10 @@ module.exports = {
     'no-underscore-dangle': ['off'],
     'no-unused-vars': ['warn'],
     'comma-dangle': ['error', 'never'],
+    'object-curly-spacing': ['error', 'always'],
     'semi': ['error', 'always'],
     'vue/max-attributes-per-line': ['off'],
-    'vue/multi-word-component-names': ['off']
+    'vue/multi-word-component-names': ['off'],
+    'quotes': ['error', 'single']
   }
 };

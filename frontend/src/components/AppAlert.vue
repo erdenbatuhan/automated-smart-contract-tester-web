@@ -24,56 +24,54 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import { HttpStatusCode } from 'axios';
 
-export default {
-  name: 'AppAlert',
-  setup: () => {
-    const store = useStore();
+const store = useStore();
+const router = useRouter();
 
-    const alertShown = ref(false);
-    const alertType = ref(null);
-    const alertTitle = ref(null);
-    const alertMessage = ref(null);
-    const alertReason = ref(null);
+const alertShown = ref(false);
+const alertType = ref(null);
+const alertTitle = ref(null);
+const alertMessage = ref(null);
+const alertReason = ref(null);
 
-    const isSuccessfulResponse = ({ status }) => status && status >= 200 && status < 300;
+const isTokenExpired = ({ status }) => (
+  // Verify if the status code is "unauthorized" and the user is still logged in,
+  // indicating that the token has expired and a new login is necessary.
+  status === HttpStatusCode.Unauthorized && computed(() => store.getters['user/isLoggedIn'])
+);
+const isSuccessfulResponse = ({ status }) => status && status >= 200 && status < 300;
 
-    watch(
-      computed(() => store.getters['global/alert']),
-      (newAlert) => {
-        if (!newAlert?.status) { // Info
-          alertType.value = "info";
-          alertTitle.value = "Info";
-          alertMessage.value = newAlert?.data?.message;
-          alertReason.value = null;
-        } else if (!isSuccessfulResponse(newAlert)) { // Error
-          alertType.value = "error";
-          alertTitle.value = `Error (${newAlert?.status} - ${newAlert?.statusText})`;
-          alertMessage.value = newAlert?.data?.error?.message ?? newAlert.data;
-          alertReason.value = newAlert?.data?.error?.reason;
-        } else { // Success
-          alertType.value = "success";
-          alertTitle.value = `Success (${newAlert?.status} - ${newAlert?.statusText})`;
-          alertMessage.value = newAlert?.data;
-          alertReason.value = null;
-        }
+watch(
+  computed(() => store.getters['global/alert']),
+  (newAlert) => {
+    // Verify if the token has expired; if it has, log the user out and redirect them to the home page.
+    if (isTokenExpired(newAlert)) return router.push({ path: '/' });
 
-        alertShown.value = true;
-      }
-    );
+    if (!newAlert?.status) { // Info
+      alertType.value = 'info';
+      alertTitle.value = 'Info';
+      alertMessage.value = newAlert?.data?.message;
+      alertReason.value = null;
+    } else if (!isSuccessfulResponse(newAlert)) { // Error
+      alertType.value = 'error';
+      alertTitle.value = `Error (${newAlert?.status} - ${newAlert?.statusText})`;
+      alertMessage.value = newAlert?.data?.error?.message ?? newAlert.data;
+      alertReason.value = newAlert?.data?.error?.reason;
+    } else { // Success
+      alertType.value = 'success';
+      alertTitle.value = `Success (${newAlert?.status} - ${newAlert?.statusText})`;
+      alertMessage.value = newAlert?.data;
+      alertReason.value = null;
+    }
 
-    return {
-      alertShown,
-      alertType,
-      alertTitle,
-      alertMessage,
-      alertReason
-    };
+    alertShown.value = true;
   }
-};
+);
 </script>
 
 <style scoped>

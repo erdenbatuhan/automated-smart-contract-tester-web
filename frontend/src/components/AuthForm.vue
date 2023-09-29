@@ -24,47 +24,36 @@
   </form>
 </template>
 
-<script>
-import { ref, computed } from 'vue';
+<script setup>
+import { ref, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
-export default {
-  name: 'AuthForm',
-  props: {
-    actionText: { type: String, default: null },
-    actionFunctionName: { type: String, default: null }
-  },
-  setup: (props) => {
-    const router = useRouter();
-    const store = useStore();
+const props = defineProps({
+  actionText: { type: String, default: null },
+  actionFunctionName: { type: String, default: null }
+});
 
-    const email = ref('');
-    const emailError = ref(null);
-    const password = ref('');
-    const passwordError = ref(null);
+const router = useRouter();
+const store = useStore();
 
-    return {
-      email,
-      emailError,
-      password,
-      passwordError,
-      authenticatedUser: computed(() => store.state['user'].authenticatedUser),
-      submitForm: () => {
-        store.dispatch(`user/${props.actionFunctionName}`, { email: email.value, password: password.value })
-          .then(() => {
-            router.push({ path: '/' });
-          })
-          .catch(({ data }) => {
-            const emailErrorMatch = data?.error?.reason?.match(/email: (.+?)(?:\.|$)/i);
-            const passwordErrorMatch = data?.error?.reason?.match(/password: (.+?)(?:\.|$)/i);
+const email = ref('');
+const emailError = ref(null);
+const password = ref('');
+const passwordError = ref(null);
 
-            emailError.value = emailErrorMatch ? emailErrorMatch[1] : null;
-            passwordError.value = passwordErrorMatch ? passwordErrorMatch[1] : null;
-          });
-      }
-    };
-  }
+const submitForm = () => {
+  store.dispatch(`user/${props.actionFunctionName}`, { email: email.value, password: password.value })
+  .then(() => (
+    router.push({ path: '/' })
+  ))
+  .catch(({ data }) => {
+    const emailErrorMatch = data?.error?.reason?.match(/email: (.+?)(?:\.|$)/i);
+    const passwordErrorMatch = data?.error?.reason?.match(/password: (.+?)(?:\.|$)/i);
+
+    emailError.value = emailErrorMatch ? emailErrorMatch[1] : null;
+    passwordError.value = passwordErrorMatch ? passwordErrorMatch[1] : null;
+  });
 };
 </script>
 

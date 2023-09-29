@@ -20,24 +20,11 @@
   </v-app>
 </template>
 
-<script>
+<script setup>
 import AppNavbar from '@/components/AppNavbar.vue';
-import AppFooter from "@/components/AppFooter.vue";
-import AppAlert from "@/components/AppAlert.vue";
-import AppSpinner from "@/components/AppSpinner.vue";
-
-export default {
-  name: 'App',
-  components: {
-    AppNavbar,
-    AppFooter,
-    AppAlert,
-    AppSpinner
-  },
-  setup: () => {
-    return {};
-  }
-};
+import AppFooter from '@/components/AppFooter.vue';
+import AppAlert from '@/components/AppAlert.vue';
+import AppSpinner from '@/components/AppSpinner.vue';
 </script>
 
 <style>

@@ -14,20 +14,12 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 
-export default {
-  name: 'AppAlert',
-  setup: () => {
-    const store = useStore();
-
-    return {
-      spinner: computed(() => store.getters['global/spinner'])
-    };
-  }
-};
+const store = useStore();
+const spinner = computed(() => store.getters['global/spinner']);
 </script>
 
 <style scoped>

@@ -1,7 +1,7 @@
 import axios from '@/api/backend';
 
 import { BASE_URL_PROJECTS } from '@/api/backend/services/project';
-import requestUtils from "@/utils/request-utils";
+import requestUtils from '@/utils/requestUtils';
 
 const BASE_URL_SUBMISSIONS = (projectName) => `${BASE_URL_PROJECTS}/${projectName}/submissions`;
 

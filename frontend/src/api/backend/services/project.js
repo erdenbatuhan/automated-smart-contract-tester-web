@@ -1,11 +1,20 @@
 import axios from '@/api/backend';
 
-import requestUtils from "@/utils/request-utils";
+import requestUtils from '@/utils/requestUtils';
 
-export const BASE_URL_PROJECTS = `/projects`;
+export const BASE_URL_PROJECTS = '/projects';
 
-const uploadProject = (method) => (projectName, requestFile, requestBodies) => requestUtils
-  .sendFormDataRequest(axios, `${BASE_URL_PROJECTS}/${projectName}/upload`, method, requestFile, requestBodies);
+const uploadProject = (method) => (projectName, file = {}, requestBody = {}) => {
+  const projectNameFormatted = projectName.toLowerCase().replace(/\s+/g, '');
+  const requestFile = {
+    fieldname: 'projectZip',
+    buffer: file,
+    filename: file.name
+  };
+
+  return requestUtils
+    .sendFormDataRequest(axios, `${BASE_URL_PROJECTS}/${projectNameFormatted}/upload`, method, requestFile, requestBody);
+};
 
 export default {
   getAvailableTestExecutionArguments: () => axios.get(`${BASE_URL_PROJECTS}/descriptions/test-execution-arguments`),

@@ -15,11 +15,11 @@
 
       <v-window v-model="tab">
         <v-window-item value="tab-all_projects">
-          <ProjectView />
+          <ProjectView :last-uploaded-project="lastUploadedProject" />
         </v-window-item>
 
-        <v-window-item value="tab-project_upload">
-          <ProjectUpload />
+        <v-window-item v-if="tab === 'tab-project_upload'" value="tab-project_upload">
+          <ProjectUpload @project-uploaded="onProjectUploaded" />
         </v-window-item>
       </v-window>
     </v-card>
@@ -33,6 +33,12 @@ import ProjectView from '@/components/ProjectView.vue';
 import ProjectUpload from '@/components/ProjectUpload.vue';
 
 const tab = ref(null);
+const lastUploadedProject = ref(null);
+
+const onProjectUploaded = (projectUploadResponse) => {
+  tab.value = null;
+  lastUploadedProject.value = projectUploadResponse['project'];
+};
 </script>
 
 <style scoped>

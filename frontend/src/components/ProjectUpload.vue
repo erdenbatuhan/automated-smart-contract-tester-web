@@ -34,6 +34,7 @@
             <v-col cols="10">
               <v-file-input
                 v-model="projectFiles"
+                accept=".zip"
                 label="Choose a file"
                 outlined
                 density="compact"
@@ -128,11 +129,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useStore } from "vuex";
+import { useStore } from 'vuex';
+import { HttpStatusCode } from 'axios';
 
 import projectServices from '@/api/backend/services/project';
 
 const store = useStore();
+const emit = defineEmits(['project-uploaded']);
 
 const projectName = ref('');
 const projectFiles = ref(null);
@@ -148,8 +151,29 @@ const toggleTestExecutionArgumentsSection = () => {
   showTestExecutionArguments.value = !showTestExecutionArguments.value;
 };
 
+const checkFields = () => {
+  if (!projectName.value || !projectFiles.value || projectFiles.value.length === 0) {
+    const fieldsNotFilledIn = [
+      { name: 'projectName', value: projectName.value },
+      { name: 'projectFiles', value: projectFiles.value && projectFiles.value.length > 0 && projectFiles.value[0] }
+    ].filter(({ value }) => !value).map(({ name }) => name);
+
+    store.commit('global/setAlert', {
+      status: HttpStatusCode.BadRequest,
+      statusText: 'Bad Request',
+      data: `Please fill in the required fields (${fieldsNotFilledIn.join(', ')})!`
+    });
+
+    return false;
+  }
+
+  return true;
+};
+
 // Handle the file upload and project name submission
 const uploadProject = () => {
+  if (!checkFields()) return;
+
   const projectConfig = {
     containerTimeout: containerTimeout.value,
     testExecutionArguments: Object.entries(selectedTestExecutionArguments.value || {})
@@ -159,12 +183,15 @@ const uploadProject = () => {
       }, {})
   };
 
-  // TODO
-  console.log(projectName.value, projectFiles.value, projectConfig);
+  store.dispatch('makeRequest', {
+    request: projectServices.uploadNewProject(projectName.value, projectFiles.value[0], { projectConfig })
+  }).then((projectUploadResponse) => {
+    emit('project-uploaded', projectUploadResponse);
+  }).catch(() => {});
 };
 
 onMounted(() => {
-  store.dispatch('makeRequest', { request: projectServices.getAvailableTestExecutionArguments(), spinner: true })
+  store.dispatch('makeRequest', { request: projectServices.getAvailableTestExecutionArguments() })
     .then((testExecutionArguments) => {
       availableTestExecutionArguments.value = testExecutionArguments;
     })

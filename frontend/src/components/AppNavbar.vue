@@ -28,23 +28,17 @@
   </nav>
 </template>
 
-<script>
+<script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
-export default {
-  name: 'AppNavbar',
-  setup: () => {
-    const store = useStore();
-    const router = useRouter();
+const store = useStore();
+const router = useRouter();
 
-    return {
-      authenticatedUser: computed(() => store.state['user'].authenticatedUser),
-      logout: () => store.dispatch(`user/logout`).finally(() => { router.push({ path: '/login' }); })
-    };
-  }
-};
+const authenticatedUser = computed(() => store.state['user'].authenticatedUser);
+
+const logout = () => store.dispatch('user/logout').finally(() => { router.push({ path: '/login' }); });
 </script>
 
 <style scoped>
@@ -83,7 +77,7 @@ nav li a:hover {
 }
 
 nav li a:active {
-  transform: translateY(0);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transform: translateY(0);
 }
 </style>

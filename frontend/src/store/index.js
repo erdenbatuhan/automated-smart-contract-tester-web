@@ -5,7 +5,7 @@ import UserModule from './modules/user';
 
 const logger = createLogger({
   collapsed: false, // Whether to collapse log groups by default
-  filter: (mutation, stateBefore, stateAfter) => true, // Customize which mutations to log (return true to log)
+  filter: (/* mutation, stateBefore, stateAfter */) => true, // Customize which mutations to log (return true to log)
   transformer: (state) => state, // Customize how state is logged (e.g., transform state data)
   mutationTransformer: (mutation) => mutation, // Customize how mutations are logged (e.g., transform mutation data)
   logActions: true, // Whether to log actions
