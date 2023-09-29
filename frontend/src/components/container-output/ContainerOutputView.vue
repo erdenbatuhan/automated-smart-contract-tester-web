@@ -64,7 +64,7 @@
               </div>
               <!-- Gas Change & Gas Change Percentage -->
               <div v-else-if="column.key.toLowerCase().includes('gaschange') && item[column.key]">
-                <gas-change-chip :field-key="column.key" :field-value="item[column.key]" />
+                <gas-change-chip :field="{ key: column.key, value: item[column.key] }" />
               </div>
               <!-- Rest -->
               <div v-else>
@@ -132,7 +132,7 @@
               </div>
               <!-- Gas Change & Gas Change Percentage -->
               <div v-else-if="column.key.toLowerCase().includes('gaschange')">
-                <gas-change-chip :field-key="column.key" :field-value="item[column.key]" />
+                <gas-change-chip :field="{ key: column.key, value: item[column.key] }" />
               </div>
               <!-- Rest -->
               <div

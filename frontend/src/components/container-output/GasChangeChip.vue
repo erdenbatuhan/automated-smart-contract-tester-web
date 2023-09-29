@@ -12,17 +12,19 @@
 import { computed } from 'vue';
 
 const props = defineProps({
-  fieldKey: { type: String, required: true },
-  fieldValue: { type: Number, required: true }
+  field: { type: Object, required: true }
 });
 
+const fieldKey = computed(() => props.field['key']);
+const fieldValue = computed(() => props.field['value']);
+
 const formattedValue = computed(() => (
-  props.fieldKey.toLowerCase().includes('percentage')
-    ? `${props.fieldValue && props.fieldValue.toFixed(2)}%`
-    : props.fieldValue
+  fieldKey.value.toLowerCase().includes('percentage')
+    ? `${fieldValue.value && fieldValue.value.toFixed(2)}%`
+    : fieldValue
 ));
 
 const chipColor = computed(() => {
-  return props.fieldValue <= 0 ? 'success' : 'error';
+  return fieldValue.value <= 0 ? 'success' : 'error';
 });
 </script>
