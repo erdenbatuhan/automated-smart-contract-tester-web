@@ -41,7 +41,7 @@
           <template #[`item.status`]="{ item }">
             <div>
               <v-chip :color="STATUS_TO_COLOR[item.status] || 'error'" size="small">
-                {{ item.status }}
+                {{ item.status.split(' ').length <= 2 ? item.status : item.status.split(' ').slice(-2).join(' ') }}
 
                 <v-tooltip activator="parent" location="top">
                   <div v-if="typeof item.dockerExitCode === 'number'">

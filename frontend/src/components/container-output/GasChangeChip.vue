@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span v-if="fieldValue === 0"> {{ fieldValue }} </span>
+    <span v-if="!fieldValue"> {{ fieldValue }} </span>
 
     <v-chip v-else :color="chipColor" size="small">
       {{ formattedValue }}
