@@ -23,6 +23,6 @@ export default {
   uploadNewProject: uploadProject('POST'),
   uploadExistingProject: uploadProject('PUT'),
   updateProjectConfig: (projectName, requestBody) => axios.put(`${BASE_URL_PROJECTS}/${projectName}/update`, requestBody),
-  downloadProject: (projectName) => axios.get(`${BASE_URL_PROJECTS}/${projectName}/download`),
+  downloadProject: (projectName) => axios.get(`${BASE_URL_PROJECTS}/${projectName}/download`, { responseType: 'blob' }),
   deleteProject: (projectName) => axios.delete(`${BASE_URL_PROJECTS}/${projectName}`)
 };

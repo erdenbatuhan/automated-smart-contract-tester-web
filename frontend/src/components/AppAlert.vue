@@ -49,6 +49,8 @@ const isSuccessfulResponse = ({ status }) => status && status >= 200 && status <
 watch(
   computed(() => store.getters['global/alert']),
   (newAlert) => {
+    if (!newAlert) return;
+
     // Verify if the token has expired; if it has, log the user out and redirect them to the home page.
     if (isTokenExpired(newAlert)) return router.push({ path: '/' });
 

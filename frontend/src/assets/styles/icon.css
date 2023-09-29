@@ -1,0 +1,14 @@
+.clickable-icon {
+  cursor: pointer;
+  margin-left: 10px;
+  text-decoration: none;
+  transition: box-shadow 0.3s ease;
+}
+
+.clickable-icon:hover {
+  transform: translateY(-0.5px);
+}
+
+.clickable-icon:active {
+  transform: translateY(0);
+}

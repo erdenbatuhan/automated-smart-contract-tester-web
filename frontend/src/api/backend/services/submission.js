@@ -10,6 +10,7 @@ export default {
   getSubmission: (projectName, submissionId) => axios.get(`${BASE_URL_SUBMISSIONS(projectName)}/${submissionId}`),
   uploadSubmission: (projectName, requestFile) => requestUtils
     .sendFormDataRequest(axios, BASE_URL_SUBMISSIONS(projectName), 'POST', requestFile),
-  downloadSubmission: (projectName, submissionId) => axios.get(`${BASE_URL_SUBMISSIONS(projectName)}/${submissionId}/download`),
+  downloadSubmission: (projectName, submissionId) => axios.get(
+    `${BASE_URL_SUBMISSIONS(projectName)}/${submissionId}/download`, { responseType: 'blob' }),
   deleteSubmission: (projectName, submissionId) => axios.delete(`${BASE_URL_SUBMISSIONS(projectName)}/${submissionId}`)
 };

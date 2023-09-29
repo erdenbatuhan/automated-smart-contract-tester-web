@@ -13,6 +13,7 @@
                 label="Project Name"
                 outlined
                 density="compact"
+                :maxlength="20"
               />
             </v-col>
 
