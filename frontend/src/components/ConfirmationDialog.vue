@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, watchEffect, defineProps } from 'vue';
+import { ref, defineProps, onMounted, computed, watch, watchEffect } from 'vue';
 
 const props = defineProps({
   action: { type: String, default: '' },
@@ -31,15 +31,12 @@ const props = defineProps({
 });
 const emit = defineEmits(['confirm', 'decline']);
 
-const action = ref('');
-const itemName = ref('');
+const action = computed(() => props.action);
+const itemName =  computed(() => props.itemName);
 const dialogShown = ref(false);
 
 const confirm = () => {
   emit('confirm', itemName.value);
-
-  action.value = '';
-  itemName.value = '';
   dialogShown.value = false;
 };
 
@@ -50,11 +47,9 @@ const handleDialogClose = () => {
 };
 
 onMounted(() => {
-  // Watcher for props.itemName
+  // Watcher for action & itemName
   watchEffect(() => {
-    if (props.action && props.itemName) {
-      action.value = props.action;
-      itemName.value = props.itemName;
+    if (action.value && itemName.value) {
       dialogShown.value = true;
     }
   });
@@ -63,7 +58,6 @@ onMounted(() => {
   watch(
     () => dialogShown.value,
     (newValue, oldValue) => {
-      console.log(newValue, oldValue);
       if (oldValue && !newValue) {
         handleDialogClose();
       }

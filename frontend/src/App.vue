@@ -28,27 +28,5 @@ import AppSpinner from '@/components/AppSpinner.vue';
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
-
-body {
-  text-align: center;
-  font-size: 1.2rem;
-  letter-spacing: 1px;
-  background: #F5F5F5;
-}
-
-h1, h2, h3, h4, ul, li, a, p, input, label, button, div, footer {
-  font-family: 'Quicksand', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
-
-ul {
-  list-style-type: none;
-}
-
-a {
-  text-decoration: none;
-}
+@import '@/assets/styles/main.css';
 </style>

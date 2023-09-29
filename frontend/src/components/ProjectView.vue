@@ -9,14 +9,15 @@
       <RefreshController :refresh-interval="refreshInterval" @refresh="fetchProjects" />
 
       <v-card-text>
+        <!-- Table for Projects -->
         <v-data-table
           class="custom-sortable"
-          :items="projectViews"
           :headers="tableHeaders"
+          :items="projectViews"
           :items-per-page="10"
           item-key="projectName"
           sortable
-          :loading="!projectViews || projectViews.length === 0"
+          :loading="spinner && (!projectViews || projectViews.length === 0)"
           loading-text="Loading..."
           fixed-header
         >
@@ -38,27 +39,41 @@
           </template>
           <!-- Status -->
           <template #[`item.status`]="{ item }">
-            <v-tooltip bottom>
-              <template #activator="{ attrs }">
-                <v-container v-bind="attrs">
-                  <v-chip :color="STATUS_TO_COLOR[item.status] || 'error'" size="small">
-                    {{ item.status }}
-                    <v-tooltip activator="parent" location="top">
-                      <span v-if="typeof item.dockerExitCode === 'number'"> Docker Exit Code: {{ item.dockerExitCode }} </span>
-                      <span v-else-if="item.errorReason"> Error: {{ item.errorReason }} </span>
-                      <span v-else> No information available! </span>
-                    </v-tooltip>
-                  </v-chip>
-                </v-container>
-              </template>
-            </v-tooltip>
+            <div>
+              <v-chip :color="STATUS_TO_COLOR[item.status] || 'error'" size="small">
+                {{ item.status }}
+
+                <v-tooltip activator="parent" location="top">
+                  <div v-if="typeof item.dockerExitCode === 'number'">
+                    <span style="color: white"> Docker Exit Code: {{ item.dockerExitCode }} </span>
+                    <br>
+                    <span v-if="item.containerError" style="color: white"> Error: {{ item.containerError }}  </span>
+                  </div>
+                  <span v-else-if="item.externalContainerError"> Error: {{ item.externalContainerError }} </span>
+                  <span v-else> No information available! </span>
+                </v-tooltip>
+              </v-chip>
+            </div>
           </template>
           <!-- Actions -->
           <template #[`item.actions`]="{ item }">
             <div class="d-flex">
+              <!-- Project Info Icon -->
+              <v-icon
+                v-if="['Error', 'Failure', 'Success', 'Failed', 'Passed'].includes(item.status)"
+                class="clickable-icon" color="info" size="x-small"
+                @click.prevent="showContainerExecutionOutput(item.projectName)"
+              >
+                <i class="fa fa-bar-chart" aria-hidden="true" />
+
+                <v-tooltip activator="parent" location="top">
+                  Show project execution output
+                </v-tooltip>
+              </v-icon>
+              <v-icon v-else class="clickable-icon" size="x-small" disabled />
               <!-- Project Edit Icon -->
               <v-icon
-                class="clickable-icon" color="info" size="x-small"
+                class="clickable-icon" color="success" size="x-small"
                 @click.prevent="editProject(item.projectName)"
               >
                 <i class="fa fa-pencil" aria-hidden="true" />
@@ -95,6 +110,9 @@
       </v-card-text>
     </v-card>
 
+    <!-- Container output dialog -->
+    <ContainerOutputDialog :dialog-shown="true" />
+
     <!-- Confirmation dialog for download and deletion -->
     <DownloadConfirmationDialog
       v-if="selectedActionName"
@@ -107,10 +125,11 @@
 </template>
 
 <script setup>
-import { ref, defineProps, onMounted, watch } from 'vue';
+import { ref, defineProps, onMounted, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import RefreshController from '@/components/RefreshController.vue';
+import ContainerOutputDialog from '@/components/container-output/ContainerOutputView.vue';
 import DownloadConfirmationDialog from '@/components/ConfirmationDialog.vue';
 
 import projectServices from '@/api/backend/services/project';
@@ -119,10 +138,14 @@ import sortingUtils from '@/utils/sortingUtils';
 const STATUS_TO_COLOR = { 'Pending': 'warning', 'Error': 'error', 'Failure': 'error', 'Success': 'success' };
 
 const props = defineProps({ lastUploadedProject: { type: Object, default: null } });
+const emit = defineEmits(['container-output-request']);
 
 const store = useStore();
+const spinner = computed(() => store.getters['global/spinner']);
+
+const projects = ref([]);
 const projectViews = ref([]);
-const refreshInterval = ref(30);
+const refreshInterval = ref(60);
 
 const selectedAction = ref(() => {});
 const selectedActionName = ref('');
@@ -161,7 +184,8 @@ const getProjectView = ({ projectName, output, createdAt, updatedAt, __v: versio
   return {
     projectName,
     status: output?.status ?? 'Pending',
-    errorReason: output?.reason, // If this field has a value, it indicates an error occurred external to container's execution
+    externalContainerError: output?.reason, // If this field has a value, it's an error occurred external to container's execution
+    containerError: container?.output?.error, // If this field has a value, it's an error occurred during container's execution
     dockerExitCode: container?.statusCode,
     numContractsTests: `${overallResults?.numContracts ?? '-'} / ${overallResults?.numTests ?? '-'}`,
     totalGas: overallResults?.totalGas ?? '-',
@@ -190,9 +214,18 @@ const fetchProjects = () => {
     spinner: false
   })
     .then((projectsRetrieved) => {
+      projects.value = projectsRetrieved;
       projectViews.value = sortingUtils.sortByDate(projectsRetrieved, 'updatedAt').map(getProjectView);
     })
     .catch(() => {});
+};
+
+const showContainerExecutionOutput = (viewedProjectName) => {
+  const projectIndex = projects.value.findIndex(({ projectName }) => projectName === viewedProjectName);
+  emit('container-output-request', {
+    projectName: viewedProjectName,
+    container: projects.value[projectIndex].output?.container
+  });
 };
 
 const editProject = (editedProjectName) => {
@@ -259,10 +292,4 @@ onMounted(() => {
 
 <style scoped>
 @import "@/assets/styles/icon.css";
-
-.text-truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 </style>
