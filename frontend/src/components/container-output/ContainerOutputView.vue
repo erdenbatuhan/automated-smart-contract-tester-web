@@ -27,10 +27,10 @@
             hide-default-footer
           >
             <template v-for="(column, index) in overallTableHeaders" #[`item.${column.key}`]="{ item }" :key="index">
-              <!-- Status -->
-              <div v-if="column.key === 'status'">
-                <v-chip :color="item.status ? 'success' : 'error'" size="small">
-                  {{ item.status ? 'Passed' : 'Failed' }}
+              <!-- Test Status -->
+              <div v-if="column.key === 'passingStatus'">
+                <v-chip :color="item['passed'] ? 'success' : 'error'" size="small">
+                  {{ item['passed'] ? 'Passed' : 'Failed' }}
                 </v-chip>
               </div>
               <!-- Status Code -->
@@ -134,13 +134,22 @@
               <div v-else-if="column.key.toLowerCase().includes('gaschange')">
                 <gas-change-chip :field="{ key: column.key, value: item[column.key] }" />
               </div>
+              <!-- Gas Usage -->
+              <div v-else-if="column.key === 'gas'">
+                {{ item['gas'] }}
+              </div>
               <!-- Rest -->
               <div
                 v-else
-                class="d-flex"
-                :class="{ 'justify-left': column.align === 'start', 'justify-center': column.align === 'center' }"
+                class="text-truncate"
+                style="max-width: 20em;"
               >
+                <!-- :class="{ 'justify-left': column.align === 'start', 'justify-center': column.align === 'center' }"-->
                 {{ item[column.key] }}
+
+                <v-tooltip activator="parent" location="top">
+                  <span> {{ item[column.key] }} </span>
+                </v-tooltip>
               </div>
             </template>
 
@@ -175,7 +184,7 @@ const searchedValue = ref('');
 const overallTableHeaders = [
   { title: '# Test Contracts', key: 'numContracts', sortable: false, align: 'center' },
   { title: '# Tests', key: 'numTests', sortable: false, align: 'center' },
-  { title: 'Passing Status', key: 'status', sortable: false, align: 'center' },
+  { title: 'Passing Status', key: 'passingStatus', sortable: false, align: 'center' },
   { title: 'Docker Exit Code', key: 'statusCode', sortable: false, align: 'center' },
   { title: 'Project Timeout (sec)', key: 'timeoutValue', sortable: false, align: 'center' },
   { title: 'Execution Time (sec)', key: 'executionTimeSeconds', sortable: false, align: 'center' },
@@ -187,12 +196,12 @@ const overallTableHeaders = [
 ];
 
 const testTableHeaders = [
-  { title: 'Test Contract', key: 'contract', align: 'start' },
-  { title: 'Test', key: 'test', align: 'start' },
-  { title: 'Status', key: 'status', align: 'start' },
-  { title: 'Gas Usage', key: 'gas', align: 'start' },
-  { title: 'Gas Change', key: 'gasChange', align: 'start' },
-  { title: 'Gas Change %', key: 'gasChangePercentage', align: 'start' }
+  { title: 'Test Contract', key: 'contract', align: 'center' },
+  { title: 'Test', key: 'test', align: 'center' },
+  { title: 'Status', key: 'status', align: 'center' },
+  { title: 'Gas Usage', key: 'gas', align: 'center' },
+  { title: 'Gas Change', key: 'gasChange', align: 'center' },
+  { title: 'Gas Change %', key: 'gasChangePercentage', align: 'center' }
 ];
 
 const getLogLines = (logs) => logs?.split('\n') ?? [];

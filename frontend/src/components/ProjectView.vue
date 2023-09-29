@@ -41,7 +41,11 @@
           <template #[`item.status`]="{ item }">
             <div>
               <v-chip :color="STATUS_TO_COLOR[item.status] || 'error'" size="small">
-                {{ item.status.split(' ').length <= 2 ? item.status : item.status.split(' ').slice(-2).join(' ') }}
+                {{
+                  item.status.split(' ').length <= 2 ? (
+                    item.status !== 'Inconclusive' ? item.status : 'Pending'
+                  ) : item.status.split(' ').slice(-2).join(' ')
+                }}
 
                 <v-tooltip activator="parent" location="top">
                   <div v-if="typeof item.dockerExitCode === 'number'">
@@ -135,7 +139,11 @@ import DownloadConfirmationDialog from '@/components/ConfirmationDialog.vue';
 import projectServices from '@/api/backend/services/project';
 import sortingUtils from '@/utils/sortingUtils';
 
-const STATUS_TO_COLOR = { 'Pending': 'warning', 'Error': 'error', 'Failure': 'error', 'Success': 'success' };
+const STATUS_TO_COLOR = {
+  'Inconclusive': 'warning', 'Pending': 'warning',
+  'Error': 'error', 'Failure': 'error',  'Failed': 'error',
+  'Success': 'success', 'Passed': 'success'
+};
 
 const props = defineProps({ lastUploadedProject: { type: Object, default: null } });
 const emit = defineEmits(['container-output-request']);
@@ -176,16 +184,16 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleString(undefined, options);
 };
 
-const getProjectView = ({ projectName, output, createdAt, updatedAt, __v: version }) => {
-  const container = output?.container;
+const getProjectView = ({ projectName, testStatus, results, createdAt, updatedAt, __v: version }) => {
+  const container = results?.container;
   const overallResults = container?.output?.overall;
-  const dockerImage = output?.dockerImage;
+  const dockerImage = results?.dockerImage;
 
   return {
     projectName,
-    status: output?.status ?? 'Pending',
-    externalContainerError: output?.reason, // If this field has a value, it's an error occurred external to container's execution
-    containerError: container?.output?.error, // If this field has a value, it's an error occurred during container's execution
+    status: results?.status ?? testStatus ?? 'Pending',
+    externalContainerError: results?.reason, // If this field has a value, it's an error occurred external to container's exec
+    containerError: container?.output?.error, // If this field has a value, it's an error occurred during container's exec
     dockerExitCode: container?.statusCode,
     numContractsTests: `${overallResults?.numContracts ?? '-'} / ${overallResults?.numTests ?? '-'}`,
     totalGas: overallResults?.totalGas ?? '-',
@@ -224,7 +232,7 @@ const showContainerExecutionOutput = (viewedProjectName) => {
   const projectIndex = projects.value.findIndex(({ projectName }) => projectName === viewedProjectName);
   emit('container-output-request', {
     projectName: viewedProjectName,
-    container: projects.value[projectIndex].output?.container
+    container: projects.value[projectIndex].results?.container
   });
 };
 
