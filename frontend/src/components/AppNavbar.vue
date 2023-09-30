@@ -9,6 +9,12 @@
         </p>
       </li>
 
+      <li>
+        <v-chip color="info" size="small">
+          {{ isAdmin ? 'Admin' : 'User' }}
+        </v-chip>
+      </li>
+
       <li><a @click="logout"> Log out </a></li>
     </ul>
 
@@ -37,6 +43,7 @@ const store = useStore();
 const router = useRouter();
 
 const authenticatedUser = computed(() => store.state['user'].authenticatedUser);
+const isAdmin = computed(() => store.getters['user/isLoggedInAsAdmin']);
 
 const logout = () => store.dispatch('user/logout').finally(() => { router.push({ path: '/login' }); });
 </script>
