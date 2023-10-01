@@ -5,14 +5,13 @@
         All Projects
       </v-card-title>
 
-      <v-spacer />
       <RefreshController :refresh-interval="refreshInterval" @refresh="fetchProjects" />
 
       <v-card-text>
         <!-- Table for Projects -->
         <v-data-table
           class="custom-sortable"
-          :headers="tableHeaders"
+          :headers="TABLE_HEADERS"
           :items="projectViews"
           :items-per-page="10"
           item-key="projectName"
@@ -51,7 +50,7 @@
                   <div v-if="typeof item.dockerExitCode === 'number'">
                     <span style="color: white"> Docker Exit Code: {{ item.dockerExitCode }} </span>
                     <br>
-                    <span v-if="item.containerError" style="color: white"> Error: {{ item.containerError }}  </span>
+                    <span v-if="item.containerError" style="color: white"> {{ item.containerError }}  </span>
                   </div>
                   <span v-else-if="item.externalContainerError"> Error: {{ item.externalContainerError }} </span>
                   <span v-else> No information available! </span>
@@ -61,8 +60,8 @@
           </template>
           <!-- Actions -->
           <template #[`item.actions`]="{ item }">
-            <div class="d-flex">
-              <!-- Project Info Icon -->
+            <div v-if="!['Inconclusive', 'Pending'].includes(item.status)" class="d-flex">
+              <!-- Project Execution Output Icon -->
               <v-icon
                 v-if="['Error', 'Failure', 'Success', 'Failed', 'Passed'].includes(item.status)"
                 class="clickable-icon" color="info" size="x-small"
@@ -114,9 +113,6 @@
       </v-card-text>
     </v-card>
 
-    <!-- Container output dialog -->
-    <ContainerOutputDialog :dialog-shown="true" />
-
     <!-- Confirmation dialog for download and deletion -->
     <DownloadConfirmationDialog
       v-if="selectedActionName"
@@ -129,11 +125,10 @@
 </template>
 
 <script setup>
-import { ref, defineProps, onMounted, computed, watch } from 'vue';
+import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
 import RefreshController from '@/components/RefreshController.vue';
-import ContainerOutputDialog from '@/components/container-output/ContainerOutputView.vue';
 import DownloadConfirmationDialog from '@/components/ConfirmationDialog.vue';
 
 import projectServices from '@/api/backend/services/project';
@@ -145,21 +140,7 @@ const STATUS_TO_COLOR = {
   'Success': 'success', 'Passed': 'success'
 };
 
-const props = defineProps({ lastUploadedProject: { type: Object, default: null } });
-const emit = defineEmits(['container-output-request']);
-
-const store = useStore();
-const spinner = computed(() => store.getters['global/spinner']);
-
-const projects = ref([]);
-const projectViews = ref([]);
-const refreshInterval = ref(60);
-
-const selectedAction = ref(() => {});
-const selectedActionName = ref('');
-const selectedProjectName = ref('');
-
-const tableHeaders = [
+const TABLE_HEADERS = [
   { title: 'Project Name', key: 'projectName', align: 'center' },
   { title: 'Status', key: 'status', align: 'center', sortable: false },
   { title: '# Contracts / # Tests', key: 'numContractsTests', align: 'center' },
@@ -170,6 +151,36 @@ const tableHeaders = [
   { title: 'Last Update', key: 'updatedAt', align: 'center' },
   { title: 'Actions', key: 'actions', align: 'center', sortable: false }
 ];
+
+const props = defineProps({ lastUpdatedProject: { type: Object, default: null } });
+const emit = defineEmits(['container-output-request', 'project-edit']);
+const store = useStore();
+
+const spinner = computed(() => store.getters['global/spinner']);
+
+const projects = ref([]);
+const projectViews = computed(() => projects?.value?.map(getProjectView));
+const refreshInterval = ref(60);
+
+const selectedAction = ref(() => {});
+const selectedActionName = ref('');
+const selectedProjectName = ref('');
+
+watch(
+  () => props.lastUpdatedProject,
+  (lastUpdatedProject) => {
+    if (lastUpdatedProject) {
+      // If the updated project is already in the list, update the list; otherwise, prepend the project to the list
+      const projectIndex = projects.value.findIndex(({ _id }) => _id === lastUpdatedProject._id);
+
+      if (projectIndex !== -1) {
+        projects.value[projectIndex] = lastUpdatedProject;
+      } else {
+        projects.value.unshift(lastUpdatedProject);
+      }
+    }
+  }
+);
 
 const formatDate = (dateString) => {
   const options = {
@@ -191,7 +202,7 @@ const getProjectView = ({ projectName, testStatus, results, createdAt, updatedAt
 
   return {
     projectName,
-    status: results?.status ?? testStatus ?? 'Pending',
+    status: (testStatus === 'Passed' ? results?.status ?? testStatus : testStatus) ?? 'Pending',
     externalContainerError: results?.reason, // If this field has a value, it's an error occurred external to container's exec
     containerError: container?.output?.error, // If this field has a value, it's an error occurred during container's exec
     dockerExitCode: container?.statusCode,
@@ -201,48 +212,27 @@ const getProjectView = ({ projectName, testStatus, results, createdAt, updatedAt
     imageSizeMB: dockerImage?.imageSizeMB ?? '-',
     createdAt: formatDate(createdAt),
     updatedAt: formatDate(updatedAt),
-    version: Number.parseInt(String(version / 2), 10)
+    version: version
   };
-};
-
-watch(
-  () => props.lastUploadedProject,
-  (lastUploadedProject) => {
-    if (lastUploadedProject) {
-      projectViews.value.unshift(getProjectView(lastUploadedProject));
-    }
-  }
-);
-
-const fetchProjects = () => {
-  projectViews.value = [];
-
-  store.dispatch('makeRequest', {
-    request: projectServices.getAllProjects(),
-    spinner: false
-  })
-    .then((projectsRetrieved) => {
-      projects.value = projectsRetrieved;
-      projectViews.value = sortingUtils.sortByDate(projectsRetrieved, 'updatedAt').map(getProjectView);
-    })
-    .catch(() => {});
 };
 
 const showContainerExecutionOutput = (viewedProjectName) => {
   const projectIndex = projects.value.findIndex(({ projectName }) => projectName === viewedProjectName);
   emit('container-output-request', {
     projectName: viewedProjectName,
+    config: projects.value[projectIndex].config,
     container: projects.value[projectIndex].results?.container
   });
 };
 
 const editProject = (editedProjectName) => {
-
+  const projectIndex = projects.value.findIndex(({ projectName }) => projectName === editedProjectName);
+  emit('project-edit', { project: projects.value[projectIndex] });
 };
 
 const downloadProject = (selectedProjectName) => {
-  return store.dispatch('makeRequest', {
-    request: projectServices.downloadProject(selectedProjectName),
+  return store.dispatch('handleRequestPromise', {
+    requestPromise: projectServices.downloadProject(selectedProjectName),
     successMessage: `Successfully downloaded the ${selectedProjectName} project!`
   })
     .then((response) => {
@@ -263,16 +253,16 @@ const downloadProject = (selectedProjectName) => {
 };
 
 const deleteProject = (deletedProjectName) => {
-  return store.dispatch('makeRequest', {
-    request: projectServices.deleteProject(deletedProjectName),
+  return store.dispatch('handleRequestPromise', {
+    requestPromise: projectServices.deleteProject(deletedProjectName),
     successMessage: `The ${deletedProjectName} project has successfully been deleted!`
   })
     .then(() => {
       // Remove the project from the list
-      const projectIndex = projectViews.value.findIndex(({ projectName }) => projectName === deletedProjectName);
-      projectViews.value = [
-        ...projectViews.value.slice(0, projectIndex),
-        ...projectViews.value.slice(projectIndex + 1)
+      const projectIndex = projects.value.findIndex(({ projectName }) => projectName === deletedProjectName);
+      projects.value = [
+        ...projects.value.slice(0, projectIndex),
+        ...projects.value.slice(projectIndex + 1)
       ];
     })
     .catch(() => {});
@@ -291,6 +281,19 @@ const takeAction = () => {
       selectedActionName.value = null;
       selectedProjectName.value = null;
     });
+};
+
+const fetchProjects = () => {
+  projects.value = [];
+
+  store.dispatch('handleRequestPromise', {
+    requestPromise: projectServices.getAllProjects(),
+    spinner: false
+  })
+    .then((projectsRetrieved) => {
+      projects.value = sortingUtils.sortByDate(projectsRetrieved, 'updatedAt');
+    })
+    .catch(() => {});
 };
 
 onMounted(() => {

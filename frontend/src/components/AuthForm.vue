@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps } from 'vue';
+import { defineProps, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 

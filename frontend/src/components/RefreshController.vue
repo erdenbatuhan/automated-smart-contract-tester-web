@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from 'vue';
+import { defineProps, defineEmits, ref } from 'vue';
 
 const props = defineProps({ refreshInterval: { type: Number, default: 0 } });
 const emit = defineEmits(['refresh']);

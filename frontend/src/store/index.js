@@ -22,10 +22,10 @@ const store = createStore({
       commit('global/resetState');
       commit('user/resetState');
     },
-    makeRequest: ({ commit }, { request, successMessage, spinner = true, ignoreError = false }) => {
+    handleRequestPromise: ({ commit }, { requestPromise, successMessage, spinner = true, ignoreError = false }) => {
       if (spinner) commit('global/setSpinner', true);
 
-      return request
+      return requestPromise
         .then((response) => {
           if (successMessage) commit('global/setAlert', { ...response, data: successMessage });
           return response.data;
@@ -38,8 +38,8 @@ const store = createStore({
           if (spinner) commit('global/setSpinner', false);
         });
     }
-  },
-  plugins: [logger] // Enable the logger as a plugin
+  }
+  // plugins: [logger] // Enable the logger as a plugin
 });
 
 export default store;

@@ -20,13 +20,13 @@
           </v-container>
 
           <v-data-table
-            :headers="overallTableHeaders"
-            :items="[{ statusCode, timeoutValue, executionTimeSeconds, ...overallData }]"
+            :headers="TABLE_HEADERS_OVERALL"
+            :items="[{ dockerExitCode, timeoutValue, executionTimeSeconds, ...overallData }]"
             :items-per-page="1"
             density="compact"
             hide-default-footer
           >
-            <template v-for="(column, index) in overallTableHeaders" #[`item.${column.key}`]="{ item }" :key="index">
+            <template v-for="(column, index) in TABLE_HEADERS_OVERALL" #[`item.${column.key}`]="{ item }" :key="index">
               <!-- Test Status -->
               <div v-if="column.key === 'passingStatus'">
                 <v-chip :color="item['passed'] ? 'success' : 'error'" size="small">
@@ -34,30 +34,30 @@
                 </v-chip>
               </div>
               <!-- Status Code -->
-              <div v-else-if="column.key === 'statusCode'">
-                <v-chip :color="statusCode === 0 ? 'success' : 'error'" size="small">
-                  {{ statusCode }}
+              <div v-else-if="column.key === 'dockerExitCode' && dockerExitCode >= 0">
+                <v-chip :color="dockerExitCode === 0 ? 'success' : 'error'" size="small">
+                  {{ dockerExitCode }}
 
                   <v-tooltip activator="parent" location="top">
-                    <span v-if="containerError"> Error: {{ containerError }}  </span>
-                    <span v-else> No information available! </span>
+                    <span v-if="containerError"> {{ containerError }}  </span>
+                    <span v-else> {{ dockerExitCodeDescriptions[dockerExitCode] || 'No information available!' }} </span>
                   </v-tooltip>
                 </v-chip>
               </div>
               <!-- Execution Time -->
-              <div v-else-if="column.key === 'executionTimeSeconds'">
+              <div v-else-if="column.key === 'executionTimeSeconds' && executionTimeSeconds >= 0">
                 <v-chip :color="executionTimeSeconds < timeoutValue ? 'success' : 'error'" size="small">
                   {{ executionTimeSeconds }}
                 </v-chip>
               </div>
               <!-- Num Passed -->
-              <div v-else-if="column.key === 'numPassed' && item.numPassed">
+              <div v-else-if="column.key === 'numPassed' && item.numPassed >= 0">
                 <v-chip :color="item.numPassed ? 'success' : 'error'" size="small">
                   {{ item.numPassed }}
                 </v-chip>
               </div>
               <!-- Num Failed -->
-              <div v-else-if="column.key === 'numFailed' && item.numFailed">
+              <div v-else-if="column.key === 'numFailed' && item.numFailed >= 0">
                 <v-chip :color="!item.numFailed ? 'success' : 'error'" size="small">
                   {{ item.numFailed }}
                 </v-chip>
@@ -68,7 +68,7 @@
               </div>
               <!-- Rest -->
               <div v-else>
-                {{ item[column.key] }}
+                {{ item[column.key] || '-' }}
               </div>
             </template>
 
@@ -97,14 +97,14 @@
 
         <v-card-text class="table-container">
           <v-data-table
-            :headers="testTableHeaders"
+            :headers="TABLE_HEADERS_TEST"
             :items="testData"
             :items-per-page="testData.length"
             :search="searchedValue"
             density="compact"
             hide-default-footer
           >
-            <template v-for="(column, index) in testTableHeaders" #[`item.${column.key}`]="{ item }" :key="index">
+            <template v-for="(column, index) in TABLE_HEADERS_TEST" #[`item.${column.key}`]="{ item }" :key="index">
               <!-- Status -->
               <div v-if="column.key === 'status'">
                 <v-chip :color="item.status === 'Success' ? 'success' : 'error'" size="small">
@@ -136,7 +136,7 @@
               </div>
               <!-- Gas Usage -->
               <div v-else-if="column.key === 'gas'">
-                {{ item['gas'] }}
+                {{ item['gas'] || '-' }}
               </div>
               <!-- Rest -->
               <div
@@ -144,8 +144,7 @@
                 class="text-truncate"
                 style="max-width: 20em;"
               >
-                <!-- :class="{ 'justify-left': column.align === 'start', 'justify-center': column.align === 'center' }"-->
-                {{ item[column.key] }}
+                {{ item[column.key] || '-' }}
 
                 <v-tooltip activator="parent" location="top">
                   <span> {{ item[column.key] }} </span>
@@ -158,34 +157,40 @@
           </v-data-table>
         </v-card-text>
       </div>
+
+      <!-- Test Weights Update -->
+      <div v-if="isAdmin && projectConfig && projectConfig.tests && projectConfig.tests.length > 0">
+        <v-container>
+          <v-btn variant="outlined" size="small" @click="projectTestWeightsBeingUpdated = true">
+            Update Test Weights
+          </v-btn>
+
+          <ProjectTestWeights
+            :dialog-shown="projectTestWeightsBeingUpdated"
+            :project-name="projectName"
+            :tests="projectConfig.tests"
+            @close="projectTestWeightsBeingUpdated = false"
+            @test-weight-update="handleTestWeightUpdate"
+          />
+        </v-container>
+      </div>
     </v-card>
   </v-container>
 </template>
 
 <script setup>
-import { ref, defineProps, computed } from 'vue';
+import { defineProps, defineEmits, ref, computed } from 'vue';
+import { useStore } from 'vuex';
 
+import dockerExitCodeDescriptions from '@/assets/data/dockerExitCodeDescriptions.json';
 import GasChangeChip from '@/components/container-output/GasChangeChip.vue';
+import ProjectTestWeights from '@/components/project-update/ProjectTestWeights.vue';
 
-const props = defineProps({
-  projectName: { type: String, default: '' },
-  containerExecutionOutput: { type: Object, default: null }
-});
-
-const cmd = computed(() => props.containerExecutionOutput?.cmd);
-const timeoutValue = computed(() => props.containerExecutionOutput?.timeoutValue);
-const executionTimeSeconds = computed(() => props.containerExecutionOutput?.executionTimeSeconds);
-const statusCode = computed(() => props.containerExecutionOutput?.statusCode);
-const containerError = computed(() => props.containerExecutionOutput?.output?.error);
-const overallData = computed(() => props.containerExecutionOutput?.output?.overall ?? {});
-const testData = computed(() => props.containerExecutionOutput?.output?.tests ?? []);
-const searchedValue = ref('');
-
-const overallTableHeaders = [
+const TABLE_HEADERS_OVERALL = [
   { title: '# Test Contracts', key: 'numContracts', sortable: false, align: 'center' },
   { title: '# Tests', key: 'numTests', sortable: false, align: 'center' },
   { title: 'Passing Status', key: 'passingStatus', sortable: false, align: 'center' },
-  { title: 'Docker Exit Code', key: 'statusCode', sortable: false, align: 'center' },
+  { title: 'Docker Exit Code', key: 'dockerExitCode', sortable: false, align: 'center' },
   { title: 'Project Timeout (sec)', key: 'timeoutValue', sortable: false, align: 'center' },
   { title: 'Execution Time (sec)', key: 'executionTimeSeconds', sortable: false, align: 'center' },
   { title: '# Passed', key: 'numPassed', sortable: false, align: 'center' },
@@ -195,7 +200,7 @@ const overallTableHeaders = [
   { title: 'Total Gas Change %', key: 'totalGasChangePercentage', sortable: false, align: 'center' }
 ];
 
-const testTableHeaders = [
+const TABLE_HEADERS_TEST = [
   { title: 'Test Contract', key: 'contract', align: 'center' },
   { title: 'Test', key: 'test', align: 'center' },
   { title: 'Status', key: 'status', align: 'center' },
@@ -204,7 +209,41 @@ const testTableHeaders = [
   { title: 'Gas Change %', key: 'gasChangePercentage', align: 'center' }
 ];
 
+const props = defineProps({
+  project: { type: Object, default: null }
+});
+const emit = defineEmits(['project-config-update']);
+const store = useStore();
+
+const isAdmin = computed(() => store.getters['user/isLoggedInAsAdmin']);
+
+const projectName = computed(() => props.project?.projectName ?? '');
+const projectConfig = computed(() => props.project?.config ?? null);
+
+const cmd = computed(() => props.project?.container?.cmd);
+const timeoutValue = computed(() => props.project?.container?.timeoutValue);
+const executionTimeSeconds = computed(() => props.project?.container?.executionTimeSeconds);
+const dockerExitCode = computed(() => props.project?.container?.statusCode);
+const containerError = computed(() => props.project?.container?.output?.error);
+const overallData = computed(() => props.project?.container?.output?.overall ?? {});
+const testData = computed(() => props.project?.container?.output?.tests ?? []);
+
+const searchedValue = ref('');
+const projectTestWeightsBeingUpdated = ref(false);
+
 const getLogLines = (logs) => logs?.split('\n') ?? [];
+
+const handleTestWeightUpdate = (tests) => {
+  projectConfig.value.tests = tests;
+  projectTestWeightsBeingUpdated.value = false;
+
+  emit('project-config-update', {
+    config: {
+      ...projectConfig.value.config,
+      tests
+    }
+  });
+};
 </script>
 
 <style scoped>

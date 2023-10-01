@@ -2,35 +2,41 @@
   <div>
     <v-card>
       <v-tabs v-model="tab" centered>
-        <v-tab class="tab" value="tab-all_projects">
-          All Projects
-          <i class="fa fa-book" aria-hidden="true" />
-        </v-tab>
-
-        <v-tab class="tab" value="tab-project_upload">
-          Project Upload
-          <i class="fa fa-upload" aria-hidden="true" />
-        </v-tab>
-
-        <v-tab v-show="tab === 'tab-container_output'" class="tab" value="tab-container_output">
-          Container Output
-          <i class="fa fa-upload" aria-hidden="true" />
+        <v-tab
+          v-for="([tabName, { title, icon, onlyVisibleWhenSelected }]) in Object.entries(TABS)"
+          v-show="!onlyVisibleWhenSelected || tab === tabName"
+          :key="tabName"
+          class="tab"
+          :value="tabName"
+        >
+          {{ title }}
+          <i :class="icon" aria-hidden="true" />
         </v-tab>
       </v-tabs>
 
       <v-window v-model="tab">
-        <v-window-item value="tab-all_projects">
-          <ProjectView :last-uploaded-project="lastUploadedProject" @container-output-request="onContainerOutputRequest" />
-        </v-window-item>
+        <v-window-item
+          v-for="tabName in Object.keys(TABS)"
+          :key="tabName"
+          :value="tabName"
+        >
+          <ProjectView
+            v-if="tabName === 'tab-all_projects'"
+            :last-updated-project="lastUpdatedProject"
+            @project-edit="onProjectEdit"
+            @container-output-request="onContainerOutputRequest"
+          />
 
-        <v-window-item v-if="tab === 'tab-project_upload'" value="tab-project_upload">
-          <ProjectUpload @project-uploaded="onProjectUploaded" />
-        </v-window-item>
+          <ProjectUpload
+            v-else-if="tabName === 'tab-project_upload'"
+            :project-edited="projectEdited"
+            @project-upload="onProjectUpdate"
+          />
 
-        <v-window-item v-if="tab === 'tab-container_output'" value="tab-container_output">
           <ContainerOutputView
-            :project-name="containerExecutionOutputViewed?.projectName"
-            :container-execution-output="containerExecutionOutputViewed?.container"
+            v-else-if="tabName === 'tab-container_output'"
+            :project="containerExecutionOutputPayload"
+            @project-config-update="onProjectUpdate"
           />
         </v-window-item>
       </v-window>
@@ -39,31 +45,62 @@
 </template>
 
 <script setup>
-import { ref, watchEffect } from 'vue';
+import { ref, watch } from 'vue';
 
 import ProjectView from '@/components/ProjectView.vue';
-import ProjectUpload from '@/components/ProjectUpload.vue';
+import ProjectUpload from '@/components/project-update/ProjectUpload.vue';
 import ContainerOutputView from '@/components/container-output/ContainerOutputView.vue';
 
-const tab = ref(null);
-const containerExecutionOutputViewed = ref(null);
-const lastUploadedProject = ref(null);
+const TABS = {
+  ['tab-all_projects']: {
+    title: 'All Projects',
+    icon: 'fa fa-book'
+  },
+  ['tab-project_upload']: {
+    title: 'Project Upload',
+    icon: 'fa fa-upload',
+    resetFunction: () => {
+      projectEdited.value = null;
+    }
+  },
+  ['tab-container_output']: {
+    title: 'Container Output',
+    icon: 'fa fa-bar-chart',
+    onlyVisibleWhenSelected: true,
+    resetFunction: () => {
+      containerExecutionOutputPayload.value = null;
+    }
+  }
+};
 
-const onContainerOutputRequest = ({ projectName, container }) => {
-  containerExecutionOutputViewed.value = { projectName, container };
+const tab = ref(null);
+const projectEdited = ref(null);
+const containerExecutionOutputPayload = ref(null);
+const lastUpdatedProject = ref(null);
+
+const onProjectEdit = ({ project }) => {
+  projectEdited.value = project;
+  tab.value = 'tab-project_upload';
+};
+
+const onContainerOutputRequest = ({ projectName, config, container }) => {
+  containerExecutionOutputPayload.value = { projectName, config, container };
   tab.value = 'tab-container_output';
 };
 
-const onProjectUploaded = (projectUploadResponse) => {
-  lastUploadedProject.value = projectUploadResponse['project'];
-  tab.value = null;
+const onProjectUpdate = ({ project }) => {
+  lastUpdatedProject.value = project;
+  tab.value = 'tab-all_projects';
 };
 
-watchEffect(() => {
-  if (tab.value !== 'tab-container_output') {
-    containerExecutionOutputViewed.value = null;
+watch(
+  () => tab.value,
+  (newTab, oldTab) => {
+    if (oldTab && TABS[oldTab].resetFunction) {
+      TABS[oldTab].resetFunction();
+    }
   }
-});
+);
 </script>
 
 <style scoped>

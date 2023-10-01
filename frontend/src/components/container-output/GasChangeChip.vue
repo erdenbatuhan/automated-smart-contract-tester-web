@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span v-if="!fieldValue"> {{ fieldValue }} </span>
+    <span v-if="!fieldValue"> {{ fieldValue || '-' }} </span>
 
     <v-chip v-else :color="chipColor" size="small">
       {{ formattedValue }}
@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { defineProps, computed } from 'vue';
 
 const props = defineProps({
   field: { type: Object, required: true }

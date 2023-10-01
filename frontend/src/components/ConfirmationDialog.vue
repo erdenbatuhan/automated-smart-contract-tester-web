@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, onMounted, computed, watch, watchEffect } from 'vue';
+import { defineProps, defineEmits, ref, computed, watch, watchEffect, onMounted } from 'vue';
 
 const props = defineProps({
   action: { type: String, default: '' },

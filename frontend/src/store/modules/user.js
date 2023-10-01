@@ -14,24 +14,24 @@ const getters = {
 
 const actions = {
   signup: ({ commit, dispatch }, user) => {
-    const request = authServices.signup(user);
+    const requestPromise = authServices.signup(user);
     const successMessage =  `Successfully signed up as ${user.email}.`;
 
-    return dispatch('makeRequest', { request, successMessage }, { root: true })
+    return dispatch('handleRequestPromise', { requestPromise, successMessage }, { root: true })
       .then(({ user }) => commit('setAuthenticatedUser', user));
   },
   login: ({ commit, dispatch }, user) => {
-    const request = authServices.login(user);
+    const requestPromise = authServices.login(user);
     const successMessage = `Successfully logged in as ${user.email}.`;
 
-    return dispatch('makeRequest', { request, successMessage }, { root: true })
+    return dispatch('handleRequestPromise', { requestPromise, successMessage }, { root: true })
       .then(({ user }) => commit('setAuthenticatedUser', user));
   },
   logout: ({ state, commit, dispatch }) => {
-    const request = authServices.logout();
+    const requestPromise = authServices.logout();
     const successMessage = `Successfully signed out from ${state.authenticatedUser.email}.`;
 
-    return dispatch('makeRequest', { request, successMessage, ignoreError: true }, { root: true })
+    return dispatch('handleRequestPromise', { requestPromise, successMessage, ignoreError: true }, { root: true })
       .finally(() => commit('removeAuthenticatedUser'));
   }
 };

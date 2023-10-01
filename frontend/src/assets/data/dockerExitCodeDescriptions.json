@@ -1,0 +1,13 @@
+{
+  "0": "Purposely stopped - Developer-initiated stop",
+  "1": "Application error - App error or incorrect reference",
+  "125": "Container failed to run error - Failed to run",
+  "126": "Command invoke error - Command invocation error",
+  "127": "File or directory not found - File/dir not found",
+  "128": "Invalid argument used on exit - Invalid argument",
+  "134": "Abnormal termination (SIGABRT) - Abnormal termination",
+  "137": "Immediate termination (SIGKILL) - Immediate termination",
+  "139": "Segmentation fault (SIGSEGV) - Segmentation fault",
+  "143": "Graceful termination (SIGTERM) - Graceful termination",
+  "255": "Exit status out of range - Exit Status Out Of Range"
+}
