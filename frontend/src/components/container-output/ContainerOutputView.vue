@@ -85,14 +85,19 @@
             Test Results
           </v-container>
 
-          <v-text-field
-            v-model="searchedValue"
-            append-icon="fa fa-search"
-            label="Search"
-            single-line
-            hide-details
-            density="compact"
-          />
+          <!-- Search Bar -->
+          <v-container class="search-bar-container">
+            <v-text-field
+              v-model="searchedValue"
+              class="text-sm-caption"
+              label="Search"
+              variant="underlined"
+              append-icon="fa fa-search"
+              single-line
+              hide-details
+              density="compact"
+            />
+          </v-container>
         </v-card-title>
 
         <v-card-text class="table-container">
@@ -247,6 +252,10 @@ const handleTestWeightUpdate = (tests) => {
 </script>
 
 <style scoped>
+.search-bar-container {
+  padding-top: 0;
+}
+
 .table-container {
   max-height: 50vh;
   overflow-y: auto;

@@ -4,7 +4,7 @@
       <v-card-title>Confirm {{ action }}</v-card-title>
 
       <v-card-text class="text-subtitle-2">
-        Do you want to {{ action.toLowerCase() }} <strong> {{ itemName }} </strong>?
+        Do you want to {{ action.toLowerCase() }} the {{ itemName }}?
       </v-card-text>
 
       <v-card-actions>
