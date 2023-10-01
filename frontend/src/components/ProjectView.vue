@@ -23,7 +23,7 @@
 import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
-import DataView from '@/components/DataView.vue';
+import DataView from '@/components/data-view/DataView.vue';
 
 import projectServices from '@/api/backend/services/project';
 

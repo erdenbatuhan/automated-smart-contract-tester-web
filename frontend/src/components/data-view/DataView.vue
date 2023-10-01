@@ -158,8 +158,8 @@
 import { defineProps, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 
-import RefreshController from '@/components/RefreshController.vue';
-import DownloadConfirmationDialog from '@/components/ConfirmationDialog.vue';
+import RefreshController from '@/components/data-view/RefreshController.vue';
+import DownloadConfirmationDialog from '@/components/data-view/ConfirmationDialog.vue';
 
 import stringUtils from '@/utils/stringUtils';
 

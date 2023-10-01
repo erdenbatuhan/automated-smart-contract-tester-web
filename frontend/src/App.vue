@@ -21,10 +21,10 @@
 </template>
 
 <script setup>
-import AppNavbar from '@/components/AppNavbar.vue';
-import AppFooter from '@/components/AppFooter.vue';
-import AppAlert from '@/components/AppAlert.vue';
-import AppSpinner from '@/components/AppSpinner.vue';
+import AppNavbar from '@/components/app/AppNavbar.vue';
+import AppFooter from '@/components/app/AppFooter.vue';
+import AppAlert from '@/components/app/AppAlert.vue';
+import AppSpinner from '@/components/app/AppSpinner.vue';
 </script>
 
 <style>
