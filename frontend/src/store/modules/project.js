@@ -1,4 +1,4 @@
-import { addDeployerEmailsToData } from '@/api/backend/services/user';
+import { addDeployerToData } from '@/api/backend/services/user';
 import projectServices from '@/api/backend/services/project';
 
 import sortingUtils from '@/utils/sortingUtils';
@@ -37,7 +37,7 @@ const actions = {
       requestPromise: projectServices.getAllProjects(),
       spinner
     }, { root: true })
-      .then(addDeployerEmailsToData)
+      .then(addDeployerToData)
       .then((projects) => sortingUtils.sortByDate(projects, 'updatedAt'))
       .then((projects) => {
         commit('setProjects', projects);

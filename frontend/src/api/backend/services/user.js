@@ -15,7 +15,7 @@ const getUser = (userId) => axios.get(`${BASE_URL_USERS}/${userId}`);
 
 const removeUser = (userId) => axios.delete(`${BASE_URL_USERS}/${userId}`);
 
-export const addDeployerEmailsToData = (data) => {
+export const addDeployerToData = (data) => {
   const userIds = data.map(({ deployer }) => deployer);
   const distinctUserIds = [...new Set(userIds)];
 

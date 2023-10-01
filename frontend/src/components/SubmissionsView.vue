@@ -21,7 +21,7 @@ import { useStore } from 'vuex';
 
 import DataView from '@/components/data-view/DataView.vue';
 
-import { addDeployerEmailsToData } from '@/api/backend/services/user';
+import { addDeployerToData } from '@/api/backend/services/user';
 import submissionServices from '@/api/backend/services/submission';
 
 import sortingUtils from '@/utils/sortingUtils';
@@ -80,7 +80,7 @@ const fetchSubmissions = () => {
     requestPromise: submissionServices.getAllSubmissions(),
     spinner: false
   })
-    .then(addDeployerEmailsToData)
+    .then(addDeployerToData)
     .then((submissionsRetrieved) => {
       submissions.value = sortingUtils.sortByDate(submissionsRetrieved, 'updatedAt');
     })
