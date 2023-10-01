@@ -165,7 +165,7 @@
             Update Test Weights
           </v-btn>
 
-          <ProjectTestWeights
+          <TestWeightsUpdateDialog
             :dialog-shown="projectTestWeightsBeingUpdated"
             :project-name="projectName"
             :tests="projectConfig.tests"
@@ -184,7 +184,7 @@ import { useStore } from 'vuex';
 
 import dockerExitCodeDescriptions from '@/assets/data/dockerExitCodeDescriptions.json';
 import GasChangeChip from '@/components/container-output/GasChangeChip.vue';
-import ProjectTestWeights from '@/components/project-update/ProjectTestWeights.vue';
+import TestWeightsUpdateDialog from '@/components/project-update/TestWeightsUpdateDialog.vue';
 
 const TABLE_HEADERS_OVERALL = [
   { title: '# Test Contracts', key: 'numContracts', sortable: false, align: 'center' },
