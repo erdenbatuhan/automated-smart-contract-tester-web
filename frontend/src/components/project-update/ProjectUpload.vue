@@ -146,12 +146,12 @@ import { HttpStatusCode } from 'axios';
 
 import projectServices from '@/api/backend/services/project';
 
-const store = useStore();
-
 const props = defineProps({ projectEdited: { type: Object, default: null } });
 const emit = defineEmits(['project-upload', 'project-config-update']);
+const store = useStore();
 
 const isEditMode = computed(() => !!props.projectEdited);
+const authenticatedUser = computed(() => store.state['user'].authenticatedUser);
 
 let projectName;
 let projectNameEdited;
@@ -257,7 +257,8 @@ const uploadProject = () => {
 
   // Upload project
   store.dispatch('handleRequestPromise', { requestPromise: uploadPromise }).then(({ project }) => {
-    emit('project-upload', { project });
+    const projectPayload = { project: { ...project, deployer: authenticatedUser } }; // Set the authenticated user as the deployer
+    emit('project-upload', projectPayload);
   }).catch(() => {});
 };
 

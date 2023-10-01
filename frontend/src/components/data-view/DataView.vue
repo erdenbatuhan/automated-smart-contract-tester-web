@@ -41,8 +41,19 @@
         >
           <!-- ID & Project Name -->
           <template v-for="(column, index) in tableHeaders" #[`item.${column.key}`]="{ item }" :key="index">
+            <!-- Deployer -->
+            <div v-if="column.key === 'deployer'">
+              <v-icon size="x-small">
+                <i class="fa fa-user" aria-hidden="true" />
+
+                <v-tooltip activator="parent" location="top">
+                  {{ item.deployer }}
+                </v-tooltip>
+              </v-icon>
+            </div>
+
             <!-- Project Name -->
-            <div v-if="['id', 'projectName'].includes(column.key)">
+            <div v-else-if="['id', 'projectName'].includes(column.key)">
               <p class="text-truncate" style="width: 12em;">
                 {{ item.projectName }}
 

@@ -3,7 +3,7 @@
     <v-card>
       <v-tabs v-model="tab" centered>
         <div
-          v-for="([tabName, { title, icon, isVisible, onlyVisibleWhenSelected }]) in Object.entries(TABS)"
+          v-for="([tabName, { title, icon, isVisible, onlyVisibleWhenSelected }]) in Object.entries(tabs)"
           :key="tabName"
         >
           <v-tab
@@ -19,7 +19,7 @@
 
       <v-window v-model="tab">
         <v-window-item
-          v-for="tabName in Object.keys(TABS)"
+          v-for="tabName in Object.keys(tabs)"
           :key="tabName"
           :value="tabName"
         >
@@ -55,15 +55,10 @@ import ProjectView from '@/components/ProjectView.vue';
 import ProjectUpload from '@/components/project-update/ProjectUpload.vue';
 import ContainerOutputView from '@/components/container-output/ContainerOutputView.vue';
 
-const TABS = {
+const tabs = ref({
   'tab-all_projects': {
     title: 'All Projects',
     icon: 'fa fa-book',
-    isVisible: () => isLoggedIn.value
-  },
-  'tab-all_submissions': {
-    title: 'All Submissions',
-    icon: 'fa fa-code',
     isVisible: () => isLoggedIn.value
   },
   'tab-project_upload': {
@@ -73,6 +68,11 @@ const TABS = {
     resetFunction: () => {
       projectEdited.value = null;
     }
+  },
+  'tab-all_submissions': {
+    title: 'All Submissions',
+    icon: 'fa fa-code',
+    isVisible: () => isLoggedIn.value
   },
   'tab-submission_upload': {
     title: 'Submission Upload',
@@ -88,7 +88,7 @@ const TABS = {
       containerExecutionOutputPayload.value = null;
     }
   }
-};
+});
 
 const store = useStore();
 
@@ -118,8 +118,8 @@ const onProjectUpdate = ({ project }) => {
 watch(
   () => tab.value,
   (newTab, oldTab) => {
-    if (oldTab && TABS.value[oldTab].resetFunction) {
-      TABS[oldTab].resetFunction();
+    if (oldTab && tabs.value[oldTab].resetFunction) {
+      tabs.value[oldTab].resetFunction();
     }
   }
 );

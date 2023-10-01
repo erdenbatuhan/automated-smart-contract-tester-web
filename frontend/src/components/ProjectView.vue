@@ -25,6 +25,7 @@ import { useStore } from 'vuex';
 
 import DataView from '@/components/data-view/DataView.vue';
 
+import { addDeployerEmailsToData } from '@/api/backend/services/user';
 import projectServices from '@/api/backend/services/project';
 
 import sortingUtils from '@/utils/sortingUtils';
@@ -33,6 +34,7 @@ import dateUtils from '@/utils/dateUtils';
 import browserUtils from '@/utils/browserUtils';
 
 const TABLE_HEADERS = [
+  { title: '', key: 'deployer', align: 'center', sortable: false },
   { title: 'Project Name', key: 'projectName', align: 'center' },
   { title: 'Status', key: 'status', align: 'center', sortable: false },
   { title: 'Contract Count', key: 'numContracts', align: 'center' },
@@ -51,7 +53,7 @@ const store = useStore();
 
 const projects = ref([]);
 const projectViews = computed(() => (
-  projects?.value?.map(({ _id: id, projectName, testStatus, results, createdAt, updatedAt, __v: version }) => {
+  projects?.value?.map(({ _id: id, projectName, testStatus, results, createdAt, updatedAt, deployer }) => {
     const container = results?.container;
     const overallResults = container?.output?.overall;
     const dockerImage = results?.dockerImage;
@@ -70,7 +72,7 @@ const projectViews = computed(() => (
       imageSizeMB: dockerImage?.imageSizeMB ?? '-',
       createdAt: dateUtils.formatDate(createdAt),
       updatedAt: dateUtils.formatDate(updatedAt),
-      version: version
+      deployer: deployer.email
     };
   })
 ));
@@ -126,6 +128,7 @@ const fetchProjects = () => {
     requestPromise: projectServices.getAllProjects(),
     spinner: false
   })
+    .then(addDeployerEmailsToData)
     .then((projectsRetrieved) => {
       projects.value = sortingUtils.sortByDate(projectsRetrieved, 'updatedAt');
     })
