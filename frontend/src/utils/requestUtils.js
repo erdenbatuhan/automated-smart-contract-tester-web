@@ -23,7 +23,7 @@ const sendFormDataRequest = (axiosInstance, url, method, requestFile, requestBod
     method,
     maxBodyLength: Infinity,
     url,
-    headers: { 'Content-Type': 'multipart/form-data' },
+    headers: { 'Content-Type': 'multipart/form-project' },
     data: formData
   });
 };

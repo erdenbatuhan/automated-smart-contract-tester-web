@@ -20,16 +20,13 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue';
+import { defineEmits, ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import DataView from '@/components/data-view/DataView.vue';
 
-import { addDeployerEmailsToData } from '@/api/backend/services/user';
 import projectServices from '@/api/backend/services/project';
 
-import sortingUtils from '@/utils/sortingUtils';
-import listUtils from '@/utils/listUtils';
 import dateUtils from '@/utils/dateUtils';
 import browserUtils from '@/utils/browserUtils';
 
@@ -47,19 +44,18 @@ const TABLE_HEADERS = [
   { title: 'Actions', key: 'actions', align: 'center', sortable: false }
 ];
 
-const props = defineProps({ lastUpdatedProject: { type: Object, default: null } });
 const emit = defineEmits(['container-output-request', 'project-edit']);
 const store = useStore();
 
-const projects = ref([]);
+const projects = ref(null);
 const projectViews = computed(() => (
-  projects?.value?.map(({ _id: id, projectName, testStatus, results, createdAt, updatedAt, deployer }) => {
+  projects?.value?.map(({ _id, projectName, testStatus, results, createdAt, updatedAt, deployer }) => {
     const container = results?.container;
     const overallResults = container?.output?.overall;
     const dockerImage = results?.dockerImage;
 
     return {
-      id,
+      _id,
       projectName,
       status: (testStatus === 'Passed' ? results?.status ?? testStatus : testStatus) ?? 'Pending',
       externalContainerError: results?.reason, // If this field has a value, it's an error occurred external to container's exec
@@ -78,14 +74,13 @@ const projectViews = computed(() => (
 ));
 
 watch(
-  () => props.lastUpdatedProject,
-  (lastUpdatedProject) => {
-    if (lastUpdatedProject) {
-      // If the updated project is already in the list, update the list; otherwise, prepend the project to the list
-      projects.value = listUtils.addOrUpdateItem(projects.value, lastUpdatedProject, '_id');
-    }
+  () => store.getters['project/projectsList'],
+  (val) => {
+    projects.value = val;
   }
 );
+
+const fetchProjects = () => store.dispatch('project/fetchProjects');
 
 const showContainerExecutionOutput = (viewedProject) => {
   const projectIndex = projects.value.findIndex(({ projectName }) => projectName === viewedProject.projectName);
@@ -105,39 +100,15 @@ const downloadProject = (selectedProject) => {
   return store.dispatch('handleRequestPromise', {
     requestPromise: projectServices.downloadProject(selectedProject.projectName),
     successMessage: `Successfully downloaded the ${selectedProject.projectName} project!`
-  }).then((fileResponse) => {
-    // Download the file
-    browserUtils.downloadFile(selectedProject.projectName, fileResponse);
-  }).catch(() => {});
-};
-
-const deleteProject = (deletedProject) => {
-  return store.dispatch('handleRequestPromise', {
-    requestPromise: projectServices.deleteProject(deletedProject.projectName),
-    successMessage: `The ${deletedProject.projectName} project has successfully been deleted!`
-  }).then(() => {
-    // Remove the project from the list
-    projects.value = listUtils.removeItem(projects.value, deletedProject, 'projectName');
-  }).catch(() => {});
-};
-
-const fetchProjects = () => {
-  projects.value = [];
-
-  store.dispatch('handleRequestPromise', {
-    requestPromise: projectServices.getAllProjects(),
-    spinner: false
   })
-    .then(addDeployerEmailsToData)
-    .then((projectsRetrieved) => {
-      projects.value = sortingUtils.sortByDate(projectsRetrieved, 'updatedAt');
+    .then((fileResponse) => {
+      // Download the file
+      browserUtils.downloadFile(selectedProject.projectName, fileResponse);
     })
     .catch(() => {});
 };
 
-onMounted(() => {
-  fetchProjects();
-});
+const deleteProject = (deletedProject) => store.dispatch('project/deleteProject', deletedProject).catch(() => {});
 </script>
 
 <style scoped>

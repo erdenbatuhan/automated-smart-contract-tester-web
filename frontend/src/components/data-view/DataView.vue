@@ -29,13 +29,13 @@
         <!-- Table for Items -->
         <v-data-table
           class="custom-sortable"
-          item-key="id"
+          item-key="_id"
           :headers="props.tableHeaders"
-          :items="props.items"
+          :items="props.items || []"
           :items-per-page="10"
           :search="searchedValue"
           sortable
-          :loading="spinner && (!items || items.length === 0)"
+          :loading="!props.items"
           loading-text="Loading..."
           fixed-header
         >
@@ -166,8 +166,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref, computed } from 'vue';
-import { useStore } from 'vuex';
+import { defineProps, ref } from 'vue';
 
 import RefreshController from '@/components/data-view/RefreshController.vue';
 import DownloadConfirmationDialog from '@/components/data-view/ConfirmationDialog.vue';
@@ -184,16 +183,13 @@ const props = defineProps({
   dataName: { type: String, default: '' },
   refreshInterval: { type: Number, default: 60 },
   tableHeaders: { type: Array, default: () => [] },
-  items: { type: Array, default: () => [] },
+  items: { type: Array, default: null },
   hasContainerExecutionOutput: { type: Boolean, default: false },
   editable: { type: Boolean, default: false },
   downloadable: { type: Boolean, default: false },
   deletable: { type: Boolean, default: false },
   functions: { type: Object, default: null }
 });
-
-const store = useStore();
-const spinner = computed(() => store.getters['global/spinner']);
 
 const searchedValue = ref('');
 const selectedAction = ref(() => {});

@@ -242,12 +242,13 @@ const handleTestWeightUpdate = (tests) => {
   projectConfig.value.tests = tests;
   projectTestWeightsBeingUpdated.value = false;
 
-  emit('project-config-update', {
-    config: {
-      ...projectConfig.value.config,
-      tests
-    }
-  });
+  store.dispatch('project/updateProjectConfig', {
+    projectName: projectName.value,
+    projectConfig: { tests }
+  })
+    .then((projectUpdated) => {
+      emit('project-config-update', projectUpdated);
+    }).catch(() => {});
 };
 </script>
 

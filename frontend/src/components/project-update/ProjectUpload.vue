@@ -140,7 +140,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue';
+import { defineProps, defineEmits, ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { HttpStatusCode } from 'axios';
 
@@ -151,14 +151,13 @@ const emit = defineEmits(['project-upload', 'project-config-update']);
 const store = useStore();
 
 const isEditMode = computed(() => !!props.projectEdited);
-const authenticatedUser = computed(() => store.state['user'].authenticatedUser);
 
 let projectName;
 let projectNameEdited;
 let projectFiles;
 let containerTimeout;
 
-const availableTestExecutionArguments = ref(null);
+const availableTestExecutionArguments = computed(() => store.state['project'].availableTestExecutionArguments);
 let showTestExecutionArguments;
 let selectedTestExecutionArguments;
 let selectedTestExecutionArgumentValues;
@@ -250,25 +249,16 @@ const uploadProject = () => {
       }, {})
   };
 
-  // Choose the right upload function
-  let uploadPromise = isEditMode.value
-    ? projectServices.uploadExistingProject(projectName.value, projectFiles.value[0], { projectConfig })
-    : projectServices.uploadNewProject(projectName.value, projectFiles.value[0], { projectConfig });
-
   // Upload project
-  store.dispatch('handleRequestPromise', { requestPromise: uploadPromise }).then(({ project }) => {
-    const projectPayload = { project: { ...project, deployer: authenticatedUser } }; // Set the authenticated user as the deployer
-    emit('project-upload', projectPayload);
-  }).catch(() => {});
-};
-
-onMounted(() => {
-  store.dispatch('handleRequestPromise', { requestPromise: projectServices.getAvailableTestExecutionArguments() })
-    .then((testExecutionArguments) => {
-      availableTestExecutionArguments.value = testExecutionArguments;
+  store.dispatch('project/uploadProject', {
+    isEdit: isEditMode.value,
+    projectUploadPayload: [projectName.value, projectFiles.value[0], { projectConfig }]
+  })
+    .then((projectUploaded) => {
+      emit('project-upload', projectUploaded);
     })
     .catch(() => {});
-});
+};
 </script>
 
 <style scoped>

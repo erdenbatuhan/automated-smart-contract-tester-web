@@ -19,7 +19,7 @@ export const addDeployerEmailsToData = (data) => {
   const userIds = data.map(({ deployer }) => deployer);
   const distinctUserIds = [...new Set(userIds)];
 
-  // Fetch the users listed in the data as deployers, then add deployer emails to the data
+  // Fetch the users listed in the project as deployers, then add deployer emails to the project
   return getUsers(distinctUserIds).then(({ data: users }) => (
     data.map((item) => {
       item['deployer'] = users[item['deployer']];

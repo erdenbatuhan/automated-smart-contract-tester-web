@@ -25,14 +25,13 @@
         >
           <ProjectView
             v-if="tabName === 'tab-all_projects'"
-            :last-updated-project="lastUpdatedProject"
             @project-edit="onProjectEdit"
             @container-output-request="onContainerOutputRequest"
           />
 
           <ProjectUpload
             v-else-if="tabName === 'tab-project_upload'"
-            :project-edited="projectEdited"
+            :project-edited="projectBeingEdited"
             @project-upload="onProjectUpdate"
           />
 
@@ -66,7 +65,7 @@ const tabs = ref({
     icon: 'fa fa-cloud-upload',
     isVisible: () => isAdmin.value,
     resetFunction: () => {
-      projectEdited.value = null;
+      projectBeingEdited.value = null;
     }
   },
   'tab-all_submissions': {
@@ -96,12 +95,11 @@ const isLoggedIn = computed(() => store.getters['user/isLoggedIn']);
 const isAdmin = computed(() => store.getters['user/isLoggedInAsAdmin']);
 
 const tab = ref(null);
-const projectEdited = ref(null);
+const projectBeingEdited = ref(null);
 const containerExecutionOutputPayload = ref(null);
-const lastUpdatedProject = ref(null);
 
 const onProjectEdit = ({ project }) => {
-  projectEdited.value = project;
+  projectBeingEdited.value = project;
   tab.value = 'tab-project_upload';
 };
 
@@ -110,8 +108,7 @@ const onContainerOutputRequest = ({ projectName, config, container }) => {
   tab.value = 'tab-container_output';
 };
 
-const onProjectUpdate = ({ project }) => {
-  lastUpdatedProject.value = project;
+const onProjectUpdate = () => {
   tab.value = 'tab-all_projects';
 };
 

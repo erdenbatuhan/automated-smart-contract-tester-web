@@ -62,9 +62,6 @@
 
 <script setup>
 import { defineProps, defineEmits, ref, watch, watchEffect } from 'vue';
-import { useStore } from 'vuex';
-
-import projectServices from '@/api/backend/services/project';
 
 const props = defineProps({
   dialogShown: { type: Boolean, default: false },
@@ -72,8 +69,6 @@ const props = defineProps({
   tests: { type: Array, default: () => [] }
 });
 const emit = defineEmits(['close', 'test-weight-update']);
-
-const store = useStore();
 
 const dialogShown = ref(false);
 const projectName = ref(null);
@@ -120,13 +115,7 @@ const validateInputs = () => {
 
 const updateWeights = () => {
   dialogShown.value = false;
-
-  store.dispatch('handleRequestPromise', {
-    requestPromise: projectServices.updateProjectConfig(projectName.value, { tests: tests.value }),
-    successMessage: 'The test weights have successfully been updated!'
-  })
-    .then(({ config }) => { emit('test-weight-update', config.tests); })
-    .catch(() => {});
+  emit('test-weight-update', tests.value);
 };
 </script>
 
