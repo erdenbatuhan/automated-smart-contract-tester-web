@@ -51,10 +51,9 @@
                 </v-tooltip>
               </v-icon>
             </div>
-
             <!-- ID, Project Name & Container Name -->
             <div v-else-if="['_id', 'projectName', 'containerName'].includes(column.key)">
-              <p class="text-truncate" style="width: 10em;">
+              <p class="text-truncate" style="width: 12em;">
                 {{ item[column.key] }}
 
                 <v-tooltip activator="parent" location="top">
@@ -62,7 +61,6 @@
                 </v-tooltip>
               </p>
             </div>
-
             <!-- Status -->
             <div v-else-if="column.key === 'status'">
               <v-chip :color="STATUS_TO_COLOR[item.status] || 'error'" size="small">
@@ -73,17 +71,38 @@
                 }}
 
                 <v-tooltip activator="parent" location="top">
-                  <div v-if="typeof item.dockerExitCode === 'number'">
-                    <span style="color: white"> Docker Exit Code: {{ item.dockerExitCode }} </span>
-                    <br>
-                    <span v-if="item.containerError" style="color: white"> {{ item.containerError }}  </span>
+                  <div v-if="item.numPassed >= 0 && item.numTests >= 0">
+                    <span style="color: white"> Number of tests passed: {{ item.numPassed }} / {{ item.numTests }} </span>
+                    <hr>
                   </div>
+
+                  <div v-if="typeof item.dockerExitCode === 'number'">
+                    <span style="color: white"> Docker container exited with code {{ item.dockerExitCode }}. </span>
+                    <br>
+                    <span v-if="item.containerError" style="color: white"> {{ item.containerError }} </span>
+                  </div>
+
                   <span v-else-if="item.externalContainerError"> Error: {{ item.externalContainerError }} </span>
                   <span v-else> No information available! </span>
                 </v-tooltip>
               </v-chip>
             </div>
+            <!-- Total Gas Change -->
+            <div v-else-if="column.key === 'totalGasChange'">
+              <div>
+                <gas-change-chip :field="{ key: column.key, value: item[column.key] }" />
 
+                <v-tooltip activator="parent" location="top">
+                  <gas-change-chip
+                    v-if="item.totalGasChangePercentage"
+                    :field="{ key: 'totalGasChangePercentage', value: item.totalGasChangePercentage }"
+                    only-text
+                    colorless
+                  />
+                  <span v-else> No information available! </span>
+                </v-tooltip>
+              </div>
+            </div>
             <!-- Rest -->
             <div v-else>
               {{ item[column.key] || '-' }}
@@ -169,6 +188,7 @@
 import { defineProps, ref } from 'vue';
 
 import RefreshController from '@/components/data-view/RefreshController.vue';
+import GasChangeChip from '@/components/GasChangeChip.vue';
 import DownloadConfirmationDialog from '@/components/data-view/ConfirmationDialog.vue';
 
 import stringUtils from '@/utils/stringUtils';

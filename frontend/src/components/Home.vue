@@ -56,9 +56,9 @@ import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import ProjectView from '@/components/ProjectView.vue';
-import ProjectUpload from '@/components/project-update/ProjectUpload.vue';
+import ProjectUpload from '@/components/ProjectUpload.vue';
 import SubmissionsView from '@/components/SubmissionsView.vue';
-import ContainerOutputView from '@/components/container-output/ContainerOutputView.vue';
+import ContainerOutputView from '@/components/ContainerOutputView.vue';
 
 const tabs = ref({
   'tab-all_projects': {

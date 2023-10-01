@@ -188,8 +188,8 @@ import { defineProps, defineEmits, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 
 import dockerExitCodeDescriptions from '@/assets/data/dockerExitCodeDescriptions.json';
-import GasChangeChip from '@/components/container-output/GasChangeChip.vue';
-import TestWeightsUpdateDialog from '@/components/project-update/TestWeightsUpdateDialog.vue';
+import GasChangeChip from '@/components/GasChangeChip.vue';
+import TestWeightsUpdateDialog from '@/components/TestWeightsUpdateDialog.vue';
 
 const TABLE_HEADERS_OVERALL = [
   { title: '# Test Contracts', key: 'numContracts', sortable: false, align: 'center' },

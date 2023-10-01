@@ -34,7 +34,6 @@ const TABLE_HEADERS = [
   { title: 'Project Name', key: 'projectName', align: 'center' },
   { title: 'Container Name', key: 'containerName', align: 'center' },
   { title: 'Status', key: 'status', align: 'center', sortable: false },
-  { title: 'Passed', key: 'numTestsPassed', align: 'center' },
   { title: 'Total Gas', key: 'totalGas', align: 'center' },
   { title: 'Total Gas Change', key: 'totalGasChange', align: 'center' },
   { title: 'Execution Time (sec)', key: 'executionTimeSeconds', align: 'center' },
@@ -48,6 +47,7 @@ const store = useStore();
 
 const submissions = ref(null);
 const projects = computed(() => store.state['project'].projects);
+const projectsList = computed(() => store.getters['project/projectsList']);
 
 const submissionViews = computed(() => (
   submissions?.value?.map(({ _id, project: projectId, testStatus, results, updatedAt, deployer }) => {
@@ -61,10 +61,11 @@ const submissionViews = computed(() => (
       containerName: results?.containerName,
       externalContainerError: results?.reason, // If this field has a value, it's an error occurred external to container's exec
       containerError: results?.output?.error, // If this field has a value, it's an error occurred during container's exec
-      numTestsPassed: `${overallResults?.numPassed} / ${overallResults?.numTests}`,
+      numTests: overallResults?.numTests,
+      numPassed: overallResults?.numPassed,
       totalGas: overallResults?.totalGas,
-      totalGasChange: `${overallResults?.totalGasChange}`,
-      totalGasChangePercentage: `${overallResults?.totalGasChangePercentage}`,
+      totalGasChange: overallResults?.totalGasChange,
+      totalGasChangePercentage: overallResults?.totalGasChangePercentage,
       executionTimeSeconds: results?.executionTimeSeconds,
       submissionDate: dateUtils.formatDate(updatedAt),
       deployer: deployer.email,
@@ -90,9 +91,9 @@ const fetchSubmissions = () => {
 };
 
 watch(
-  () => projects.value,
+  () => projectsList.value,
   (val) => {
-    if (val) {
+    if (!!val && val.length > 0) {
       fetchSubmissions();
     }
   },
