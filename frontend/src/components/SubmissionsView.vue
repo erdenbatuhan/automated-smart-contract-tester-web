@@ -119,13 +119,13 @@ const showContainerExecutionOutput = (viewedSubmission) => {
   });
 };
 
-const downloadSubmission = (selectedSubmission) => {
+const downloadSubmission = ({ _id, projectName }) => {
   return store.dispatch('handleRequestPromise', {
-    requestPromise: submissionServices.downloadSubmission(selectedSubmission.submissionName),
-    successMessage: `Successfully downloaded the ${selectedSubmission.submissionName} submission!`
+    requestPromise: submissionServices.downloadSubmission(projectName, _id),
+    successMessage: `Downloaded the ${projectName} submission with ID=${_id}!`
   }).then((fileResponse) => {
     // Download the file
-    browserUtils.downloadFile(selectedSubmission.submissionName, fileResponse);
+    browserUtils.downloadFile(`${projectName}_submission_${_id}`, fileResponse);
   }).catch(() => {});
 };
 </script>
