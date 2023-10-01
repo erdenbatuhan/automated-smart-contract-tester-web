@@ -44,21 +44,21 @@
             <!-- Deployer -->
             <div v-if="column.key === 'deployer'">
               <v-icon size="x-small">
-                <i class="fa fa-user" aria-hidden="true" />
+                <i :class="`fa ${item.deployerRole === 'Admin' ? 'fa-user-plus' : 'fa-user'}`" aria-hidden="true" />
 
                 <v-tooltip activator="parent" location="top">
-                  {{ item.deployer }}
+                  {{ `${item.deployer} ${item.deployerRole === 'Admin' ? '(Admin)' : ''}` }}
                 </v-tooltip>
               </v-icon>
             </div>
 
-            <!-- Project Name -->
-            <div v-else-if="['id', 'projectName'].includes(column.key)">
-              <p class="text-truncate" style="width: 12em;">
-                {{ item.projectName }}
+            <!-- ID, Project Name & Container Name -->
+            <div v-else-if="['_id', 'projectName', 'containerName'].includes(column.key)">
+              <p class="text-truncate" style="width: 10em;">
+                {{ item[column.key] }}
 
                 <v-tooltip activator="parent" location="top">
-                  {{ item.projectName }}
+                  {{ item[column.key] }}
                 </v-tooltip>
               </p>
             </div>

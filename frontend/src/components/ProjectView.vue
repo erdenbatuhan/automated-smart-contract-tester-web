@@ -5,9 +5,9 @@
       :table-headers="TABLE_HEADERS"
       :items="projectViews"
       has-container-execution-output
-      editable
-      downloadable
-      deletable
+      :editable="isAdmin"
+      :downloadable="isAdmin"
+      :deletable="isAdmin"
       :functions="{
         fetchItems: fetchProjects,
         showContainerExecutionOutput: showContainerExecutionOutput,
@@ -47,6 +47,8 @@ const TABLE_HEADERS = [
 const emit = defineEmits(['container-output-request', 'project-edit']);
 const store = useStore();
 
+const isAdmin = computed(() => store.getters['user/isLoggedInAsAdmin']);
+
 const projects = ref(null);
 const projectViews = computed(() => (
   projects?.value?.map(({ _id, projectName, testStatus, results, createdAt, updatedAt, deployer }) => {
@@ -61,14 +63,15 @@ const projectViews = computed(() => (
       externalContainerError: results?.reason, // If this field has a value, it's an error occurred external to container's exec
       containerError: container?.output?.error, // If this field has a value, it's an error occurred during container's exec
       dockerExitCode: container?.statusCode,
-      numContracts: overallResults?.numContracts ?? '-',
-      numTests: overallResults?.numTests ?? '-',
-      totalGas: overallResults?.totalGas ?? '-',
-      imageBuildTimeSeconds: dockerImage?.imageBuildTimeSeconds ?? '-',
-      imageSizeMB: dockerImage?.imageSizeMB ?? '-',
+      numContracts: overallResults?.numContracts,
+      numTests: overallResults?.numTests,
+      totalGas: overallResults?.totalGas,
+      imageBuildTimeSeconds: dockerImage?.imageBuildTimeSeconds,
+      imageSizeMB: dockerImage?.imageSizeMB,
       createdAt: dateUtils.formatDate(createdAt),
       updatedAt: dateUtils.formatDate(updatedAt),
-      deployer: deployer.email
+      deployer: deployer.email,
+      deployerRole: deployer.role
     };
   })
 ));
@@ -77,7 +80,8 @@ watch(
   () => store.getters['project/projectsList'],
   (val) => {
     projects.value = val;
-  }
+  },
+  { immediate: true }
 );
 
 const fetchProjects = () => store.dispatch('project/fetchProjects');

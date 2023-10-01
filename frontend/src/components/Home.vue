@@ -35,6 +35,11 @@
             @project-upload="onProjectUpdate"
           />
 
+          <SubmissionsView
+            v-if="tabName === 'tab-all_submissions'"
+            @container-output-request="onContainerOutputRequest"
+          />
+
           <ContainerOutputView
             v-else-if="tabName === 'tab-container_output'"
             :project="containerExecutionOutputPayload"
@@ -52,6 +57,7 @@ import { useStore } from 'vuex';
 
 import ProjectView from '@/components/ProjectView.vue';
 import ProjectUpload from '@/components/project-update/ProjectUpload.vue';
+import SubmissionsView from '@/components/SubmissionsView.vue';
 import ContainerOutputView from '@/components/container-output/ContainerOutputView.vue';
 
 const tabs = ref({

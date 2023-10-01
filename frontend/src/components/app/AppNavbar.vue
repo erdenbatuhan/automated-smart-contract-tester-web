@@ -10,7 +10,7 @@
       </li>
 
       <li>
-        <v-chip color="info" size="small">
+        <v-chip :color="isAdmin ? 'error' : 'info'" size="small">
           {{ isAdmin ? 'Admin' : 'User' }}
         </v-chip>
       </li>

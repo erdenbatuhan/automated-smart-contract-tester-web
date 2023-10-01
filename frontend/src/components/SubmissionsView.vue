@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, computed, watch, onMounted } from 'vue';
+import { defineProps, defineEmits, ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import DataView from '@/components/data-view/DataView.vue';
@@ -31,15 +31,14 @@ import browserUtils from '@/utils/browserUtils';
 
 const TABLE_HEADERS = [
   { title: '', key: 'deployer', align: 'center', sortable: false },
-  { title: 'Submission Name', key: 'submissionName', align: 'center' },
+  { title: 'Project Name', key: 'projectName', align: 'center' },
+  { title: 'Container Name', key: 'containerName', align: 'center' },
   { title: 'Status', key: 'status', align: 'center', sortable: false },
-  { title: 'Contract Count', key: 'numContracts', align: 'center' },
-  { title: 'Test Count', key: 'numTests', align: 'center' },
+  { title: 'Passed', key: 'numTestsPassed', align: 'center' },
   { title: 'Total Gas', key: 'totalGas', align: 'center' },
-  { title: 'Build Time (sec)', key: 'imageBuildTimeSeconds', align: 'center' },
-  { title: 'Image Size (MB)', key: 'imageSizeMB', align: 'center' },
-  // { title: 'Created At', key: 'createdAt', align: 'center' },
-  { title: 'Last Update', key: 'updatedAt', align: 'center' },
+  { title: 'Total Gas Change', key: 'totalGasChange', align: 'center' },
+  { title: 'Execution Time (sec)', key: 'executionTimeSeconds', align: 'center' },
+  { title: 'Submission Date', key: 'submissionDate', align: 'center' },
   { title: 'Actions', key: 'actions', align: 'center', sortable: false }
 ];
 
@@ -47,31 +46,58 @@ const props = defineProps({ lastUpdatedSubmission: { type: Object, default: null
 const emit = defineEmits(['container-output-request', 'submission-edit']);
 const store = useStore();
 
-const submissions = ref([]);
+const submissions = ref(null);
+const projects = computed(() => store.state['project'].projects);
+
 const submissionViews = computed(() => (
-  submissions?.value?.map(({ _id: id, submissionName, testStatus, results, createdAt, updatedAt, deployer }) => {
-    const container = results?.container;
-    const overallResults = container?.output?.overall;
-    const dockerImage = results?.dockerImage;
+  submissions?.value?.map(({ _id, project: projectId, testStatus, results, updatedAt, deployer }) => {
+    const overallResults = results?.output?.overall;
 
     return {
-      id,
-      submissionName,
+      _id,
+      projectName: projects.value[projectId].projectName,
       status: (testStatus === 'Passed' ? results?.status ?? testStatus : testStatus) ?? 'Pending',
+      dockerExitCode: results?.statusCode,
+      containerName: results?.containerName,
       externalContainerError: results?.reason, // If this field has a value, it's an error occurred external to container's exec
-      containerError: container?.output?.error, // If this field has a value, it's an error occurred during container's exec
-      dockerExitCode: container?.statusCode,
-      numContracts: overallResults?.numContracts ?? '-',
-      numTests: overallResults?.numTests ?? '-',
-      totalGas: overallResults?.totalGas ?? '-',
-      imageBuildTimeSeconds: dockerImage?.imageBuildTimeSeconds ?? '-',
-      imageSizeMB: dockerImage?.imageSizeMB ?? '-',
-      createdAt: dateUtils.formatDate(createdAt),
-      updatedAt: dateUtils.formatDate(updatedAt),
-      deployer: deployer.email
+      containerError: results?.output?.error, // If this field has a value, it's an error occurred during container's exec
+      numTestsPassed: `${overallResults?.numPassed} / ${overallResults?.numTests}`,
+      totalGas: overallResults?.totalGas,
+      totalGasChange: `${overallResults?.totalGasChange}`,
+      totalGasChangePercentage: `${overallResults?.totalGasChangePercentage}`,
+      executionTimeSeconds: results?.executionTimeSeconds,
+      submissionDate: dateUtils.formatDate(updatedAt),
+      deployer: deployer.email,
+      deployerRole: deployer.role
     };
   })
 ));
+
+const fetchSubmissions = () => {
+  submissions.value = null;
+
+  store.dispatch('handleRequestPromise', {
+    requestPromise: submissionServices.getAllSubmissions(),
+    spinner: false
+  })
+    .then(addDeployerEmailsToData)
+    .then((submissionsRetrieved) => {
+      submissions.value = sortingUtils.sortByDate(submissionsRetrieved, 'updatedAt');
+    })
+    .catch(() => {
+      submissions.value = [];
+    });
+};
+
+watch(
+  () => projects.value,
+  (val) => {
+    if (val) {
+      fetchSubmissions();
+    }
+  },
+  { immediate: true }
+);
 
 watch(
   () => props.lastUpdatedSubmission,
@@ -88,7 +114,7 @@ const showContainerExecutionOutput = (viewedSubmission) => {
   emit('container-output-request', {
     submissionName: viewedSubmission.submissionName,
     config: submissions.value[submissionIndex].config,
-    container: submissions.value[submissionIndex].results?.container
+    container: submissions.value[submissionIndex].results
   });
 };
 
@@ -101,24 +127,6 @@ const downloadSubmission = (selectedSubmission) => {
     browserUtils.downloadFile(selectedSubmission.submissionName, fileResponse);
   }).catch(() => {});
 };
-
-const fetchSubmissions = () => {
-  submissions.value = [];
-
-  store.dispatch('handleRequestPromise', {
-    requestPromise: submissionServices.getAllSubmissions(),
-    spinner: false
-  })
-    .then(addDeployerEmailsToData)
-    .then((submissionsRetrieved) => {
-      submissions.value = sortingUtils.sortByDate(submissionsRetrieved, 'updatedAt');
-    })
-    .catch(() => {});
-};
-
-onMounted(() => {
-  fetchSubmissions();
-});
 </script>
 
 <style scoped>
