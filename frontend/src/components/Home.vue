@@ -23,7 +23,7 @@
           :key="tabName"
           :value="tabName"
         >
-          <ProjectView
+          <ProjectsView
             v-if="tabName === 'tab-all_projects'"
             @project-edit="onProjectEdit"
             @container-output-request="onContainerOutputRequest"
@@ -55,7 +55,7 @@
 import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 
-import ProjectView from '@/components/ProjectView.vue';
+import ProjectsView from '@/components/ProjectsView.vue';
 import ProjectUpload from '@/components/ProjectUpload.vue';
 import SubmissionsView from '@/components/SubmissionsView.vue';
 import ContainerOutputView from '@/components/ContainerOutputView.vue';

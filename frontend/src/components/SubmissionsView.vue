@@ -25,7 +25,6 @@ import { addDeployerToData } from '@/api/backend/services/user';
 import submissionServices from '@/api/backend/services/submission';
 
 import sortingUtils from '@/utils/sortingUtils';
-import listUtils from '@/utils/listUtils';
 import dateUtils from '@/utils/dateUtils';
 import browserUtils from '@/utils/browserUtils';
 
@@ -41,41 +40,19 @@ const TABLE_HEADERS = [
   { title: 'Actions', key: 'actions', align: 'center', sortable: false }
 ];
 
-const props = defineProps({ lastUpdatedSubmission: { type: Object, default: null } });
+const props = defineProps({ newSubmission: { type: Object, default: null } });
 const emit = defineEmits(['container-output-request', 'submission-edit']);
 const store = useStore();
 
-const submissions = ref(null);
 const projects = computed(() => store.state['project'].projects);
 const projectsList = computed(() => store.getters['project/projectsList']);
 
-const submissionViews = computed(() => (
-  submissions?.value?.map(({ _id, project: projectId, testStatus, results, updatedAt, deployer }) => {
-    const overallResults = results?.output?.overall;
-
-    return {
-      _id,
-      projectName: projects.value[projectId].projectName,
-      status: (testStatus === 'Passed' ? results?.status ?? testStatus : testStatus) ?? 'Pending',
-      dockerExitCode: results?.statusCode,
-      containerName: results?.containerName,
-      externalContainerError: results?.reason, // If this field has a value, it's an error occurred external to container's exec
-      containerError: results?.output?.error, // If this field has a value, it's an error occurred during container's exec
-      numTests: overallResults?.numTests,
-      numPassed: overallResults?.numPassed,
-      totalGas: overallResults?.totalGas,
-      totalGasChange: overallResults?.totalGasChange,
-      totalGasChangePercentage: overallResults?.totalGasChangePercentage,
-      executionTimeSeconds: results?.executionTimeSeconds,
-      submissionDate: dateUtils.formatDate(updatedAt),
-      deployer: deployer.email,
-      deployerRole: deployer.role
-    };
-  })
-));
+const submissionsList = ref(null);
+const submissions = ref(null);
+const submissionViews = ref(null);
 
 const fetchSubmissions = () => {
-  submissions.value = null;
+  submissionsList.value = null;
 
   store.dispatch('handleRequestPromise', {
     requestPromise: submissionServices.getAllSubmissions(),
@@ -83,49 +60,82 @@ const fetchSubmissions = () => {
   })
     .then(addDeployerToData)
     .then((submissionsRetrieved) => {
-      submissions.value = sortingUtils.sortByDate(submissionsRetrieved, 'updatedAt');
+      submissionsList.value = sortingUtils.sortByDate(submissionsRetrieved, 'updatedAt');
     })
     .catch(() => {
-      submissions.value = [];
+      submissionsList.value = [];
     });
 };
 
+// Watcher: projectsList (store.getters['project/projectsList'])
 watch(
   () => projectsList.value,
   (val) => {
-    if (!!val && val.length > 0) {
+    if (val && val.length > 0) {
       fetchSubmissions();
     }
   },
   { immediate: true }
 );
 
+const getSubmissionView = ({ _id, project: projectId, testStatus, results, updatedAt, deployer }) => {
+  const overallResults = results?.output?.overall;
+
+  return {
+    _id,
+    projectName: projects.value ? projects.value[projectId].projectName : 'N/A',
+    status: (testStatus === 'Passed' ? results?.status ?? testStatus : testStatus) ?? 'Pending',
+    dockerExitCode: results?.statusCode,
+    containerName: results?.containerName,
+    externalContainerError: results?.reason, // If this field has a value, it's an error occurred external to container's exec
+    containerError: results?.output?.error, // If this field has a value, it's an error occurred during container's exec
+    numTests: overallResults?.numTests,
+    numPassed: overallResults?.numPassed,
+    totalGas: overallResults?.totalGas,
+    totalGasChange: overallResults?.totalGasChange,
+    totalGasChangePercentage: overallResults?.totalGasChangePercentage,
+    executionTimeSeconds: results?.executionTimeSeconds,
+    submissionDate: dateUtils.formatDate(updatedAt),
+    deployer: deployer.email,
+    deployerRole: deployer.role
+  };
+};
+
+// Watcher: submissionsList
 watch(
-  () => props.lastUpdatedSubmission,
-  (lastUpdatedSubmission) => {
-    if (lastUpdatedSubmission) {
-      // If the updated submission is already in the list, update the list; otherwise, prepend the submission to the list
-      submissions.value = listUtils.addOrUpdateItem(submissions.value, lastUpdatedSubmission, '_id');
+  () => submissionsList.value,
+  (val) => {
+    submissions.value = val ? Object.assign(...val.map((submission) => ({ [submission._id]: submission }))) : null;
+    submissionViews.value = val?.map(getSubmissionView) ?? null;
+  },
+  { immediate: true }
+);
+
+// Watcher: props.newSubmission
+watch(
+  () => props.newSubmission,
+  (val) => {
+    if (val) {
+      // Prepend the new submission to the list
+      submissionsList.value.unshift(val);
     }
   }
 );
 
-const showContainerExecutionOutput = (viewedSubmission) => {
-  const submissionIndex = submissions.value.findIndex(({ submissionName }) => submissionName === viewedSubmission.submissionName);
+const showContainerExecutionOutput = (selectedSubmission) => {
   emit('container-output-request', {
-    submissionName: viewedSubmission.submissionName,
-    config: submissions.value[submissionIndex].config,
-    container: submissions.value[submissionIndex].results
+    submissionName: selectedSubmission.projectName,
+    container: submissions.value[selectedSubmission._id].results
   });
 };
 
-const downloadSubmission = ({ _id, projectName }) => {
+const downloadSubmission = (selectedSubmission) => {
   return store.dispatch('handleRequestPromise', {
-    requestPromise: submissionServices.downloadSubmission(projectName, _id),
-    successMessage: `Downloaded the ${projectName} submission with ID=${_id}!`
+    requestPromise: submissionServices.downloadSubmission(selectedSubmission.projectName, selectedSubmission._id),
+    successMessage: `Downloaded the ${selectedSubmission.projectName} submission with ID=${selectedSubmission._id}!`
   }).then((fileResponse) => {
     // Download the file
-    browserUtils.downloadFile(`${projectName}_submission_${_id}`, fileResponse);
+    browserUtils.downloadFile(`${selectedSubmission.projectName}_submission_${selectedSubmission._id}`, fileResponse);
   }).catch(() => {});
 };
 </script>
