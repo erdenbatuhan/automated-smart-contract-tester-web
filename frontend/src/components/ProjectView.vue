@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { defineEmits, ref, computed, watch } from 'vue';
+import { defineEmits, computed } from 'vue';
 import { useStore } from 'vuex';
 
 import DataView from '@/components/data-view/DataView.vue';
@@ -49,9 +49,10 @@ const store = useStore();
 
 const isAdmin = computed(() => store.getters['user/isLoggedInAsAdmin']);
 
-const projects = ref(null);
+const projects = computed(() => store.state['project'].projects);
+const projectsList = computed(() => store.getters['project/projectsList']);
 const projectViews = computed(() => (
-  projects?.value?.map(({ _id, projectName, testStatus, results, createdAt, updatedAt, deployer }) => {
+  projectsList.value?.map(({ _id, projectName, testStatus, results, createdAt, updatedAt, deployer }) => {
     const container = results?.container;
     const overallResults = container?.output?.overall;
     const dockerImage = results?.dockerImage;
@@ -76,28 +77,18 @@ const projectViews = computed(() => (
   })
 ));
 
-watch(
-  () => store.getters['project/projectsList'],
-  (val) => {
-    projects.value = val;
-  },
-  { immediate: true }
-);
-
 const fetchProjects = () => store.dispatch('project/fetchProjects');
 
 const showContainerExecutionOutput = (viewedProject) => {
-  const projectIndex = projects.value.findIndex(({ projectName }) => projectName === viewedProject.projectName);
   emit('container-output-request', {
     projectName: viewedProject.projectName,
-    config: projects.value[projectIndex].config,
-    container: projects.value[projectIndex].results?.container
+    config: projects.value[viewedProject._id].config,
+    container: projects.value[viewedProject._id].results?.container
   });
 };
 
-const editProject = (editedProjectName) => {
-  const projectIndex = projects.value.findIndex(({ projectName }) => projectName === editedProjectName.projectName);
-  emit('project-edit', { project: projects.value[projectIndex] });
+const editProject = (editedProject) => {
+  emit('project-edit', projects.value[editedProject._id]);
 };
 
 const downloadProject = (selectedProject) => {

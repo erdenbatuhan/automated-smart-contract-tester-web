@@ -42,7 +42,7 @@
 
           <ContainerOutputView
             v-else-if="tabName === 'tab-container_output'"
-            :project="containerExecutionOutputPayload"
+            :payload="containerExecutionOutputPayload"
             @project-config-update="onProjectUpdate"
           />
         </v-window-item>
@@ -104,7 +104,7 @@ const tab = ref(null);
 const projectBeingEdited = ref(null);
 const containerExecutionOutputPayload = ref(null);
 
-const onProjectEdit = ({ project }) => {
+const onProjectEdit = (project) => {
   projectBeingEdited.value = project;
   tab.value = 'tab-project_upload';
 };

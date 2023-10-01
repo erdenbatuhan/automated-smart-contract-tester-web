@@ -15,6 +15,9 @@
               <strong> Project: </strong> <i> {{ projectName }} </i>
             </div>
             <div class="text-subtitle-2">
+              <strong> Container: </strong> <i> {{ containerName }} </i>
+            </div>
+            <div class="text-subtitle-2">
               <strong> Command Executed: </strong> <i> {{ cmd }} </i>
             </div>
           </v-container>
@@ -215,23 +218,24 @@ const TABLE_HEADERS_TEST = [
 ];
 
 const props = defineProps({
-  project: { type: Object, default: null }
+  payload: { type: Object, default: null }
 });
 const emit = defineEmits(['project-config-update']);
 const store = useStore();
 
 const isAdmin = computed(() => store.getters['user/isLoggedInAsAdmin']);
 
-const projectName = computed(() => props.project?.projectName ?? '');
-const projectConfig = computed(() => props.project?.config ?? null);
+const projectName = computed(() => props.payload?.projectName ?? '');
+const projectConfig = computed(() => props.payload?.config ?? null);
 
-const cmd = computed(() => props.project?.container?.cmd);
-const timeoutValue = computed(() => props.project?.container?.timeoutValue);
-const executionTimeSeconds = computed(() => props.project?.container?.executionTimeSeconds);
-const dockerExitCode = computed(() => props.project?.container?.statusCode);
-const containerError = computed(() => props.project?.container?.output?.error);
-const overallData = computed(() => props.project?.container?.output?.overall ?? {});
-const testData = computed(() => props.project?.container?.output?.tests ?? []);
+const containerName = computed(() => props.payload?.container?.containerName);
+const cmd = computed(() => props.payload?.container?.cmd);
+const timeoutValue = computed(() => props.payload?.container?.timeoutValue);
+const executionTimeSeconds = computed(() => props.payload?.container?.executionTimeSeconds);
+const dockerExitCode = computed(() => props.payload?.container?.statusCode);
+const containerError = computed(() => props.payload?.container?.output?.error);
+const overallData = computed(() => props.payload?.container?.output?.overall ?? {});
+const testData = computed(() => props.payload?.container?.output?.tests ?? []);
 
 const searchedValue = ref('');
 const projectTestWeightsBeingUpdated = ref(false);
