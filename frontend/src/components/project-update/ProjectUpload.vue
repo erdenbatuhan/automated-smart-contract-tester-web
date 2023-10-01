@@ -1,140 +1,142 @@
 <template>
-  <v-card>
-    <v-card-title> Project Upload </v-card-title>
-    <v-card-subtitle> {{ !isEditMode ? 'Upload a new' : 'Update an existing' }} project </v-card-subtitle>
+  <v-container>
+    <v-card>
+      <v-card-title> Project Upload </v-card-title>
+      <v-card-subtitle> {{ !isEditMode ? 'Upload a new' : 'Update an existing' }} project </v-card-subtitle>
 
-    <v-card-text>
-      <v-container>
-        <v-row>
-          <v-col :offset="4" :cols="4">
-            <!-- Project Name Input -->
-            <v-text-field
-              v-model="projectName"
-              class="compact-input"
-              label="Project Name"
-              :maxlength="20"
-              outlined
-              density="compact"
-              :rules="rules['projectName']"
-              :disabled="isEditMode"
-              @input="() => { projectNameEdited = true }"
-            >
-              <template #prepend-inner>
-                <v-icon color="tertiary" icon="fa fa-file-text" size="x-small" />
-              </template>
+      <v-card-text>
+        <v-container>
+          <v-row>
+            <v-col :offset="4" :cols="4">
+              <!-- Project Name Input -->
+              <v-text-field
+                v-model="projectName"
+                class="compact-input"
+                label="Project Name"
+                :maxlength="20"
+                outlined
+                density="compact"
+                :rules="rules['projectName']"
+                :disabled="isEditMode"
+                @input="() => { projectNameEdited = true }"
+              >
+                <template #prepend-inner>
+                  <v-icon color="tertiary" icon="fa fa-file-text" size="x-small" />
+                </template>
 
-              <template #append>
-                <div>
-                  <v-icon color="tertiary" icon="fa fa-question-circle" size="x-small" />
+                <template #append>
+                  <div>
+                    <v-icon color="tertiary" icon="fa fa-question-circle" size="x-small" />
 
-                  <v-tooltip activator="parent" location="top">
-                    The name of the project uploaded
-                  </v-tooltip>
+                    <v-tooltip activator="parent" location="top">
+                      The name of the project uploaded
+                    </v-tooltip>
+                  </div>
+                </template>
+              </v-text-field>
+
+              <!-- File Input -->
+              <v-file-input
+                v-model="projectFiles"
+                class="compact-input"
+                accept=".zip"
+                label="Choose a file"
+                prepend-icon=""
+                :clearable="true"
+                outlined
+                density="compact"
+                :rules="rules['projectFiles']"
+              >
+                <template #prepend-inner>
+                  <v-icon color="tertiary" icon="fa fa-paperclip" size="x-small" />
+                </template>
+
+                <template #append>
+                  <div>
+                    <v-icon color="tertiary" icon="fa fa-question-circle" size="x-small" />
+
+                    <v-tooltip activator="parent" location="top">
+                      The zipped project must include the following components:
+                      <br>
+                      remappings.txt, .gitmodules, the src folder, and the test folder
+                    </v-tooltip>
+                  </div>
+                </template>
+              </v-file-input>
+
+              <!-- Container Timeout -->
+              <v-text-field
+                v-model="containerTimeout"
+                class="compact-input"
+                label="Container Timeout (e.g. 15)"
+                outlined
+                density="compact"
+                :rules="rules['containerTimeout']"
+              >
+                <template #prepend-inner>
+                  <v-icon color="tertiary" icon="fa fa-clock" size="x-small" />
+                </template>
+
+                <template #append>
+                  <div>
+                    <v-icon color="tertiary" icon="fa fa-question-circle" size="x-small" />
+
+                    <v-tooltip activator="parent" location="top">
+                      The maximum allowable timeout duration (in seconds)
+                      for the Docker containers created to execute the submissions
+                    </v-tooltip>
+                  </div>
+                </template>
+              </v-text-field>
+
+              <!-- Test Execution Arguments -->
+              <div>
+                <v-btn variant="outlined" size="small" @click="toggleTestExecutionArgumentsSection">
+                  {{ !showTestExecutionArguments ? 'Show' : 'Hide' }} Test Execution Arguments
+                </v-btn>
+
+                <div v-if="showTestExecutionArguments" class="scrollable-div">
+                  <br>
+
+                  <v-row v-for="(description, argument) in availableTestExecutionArguments" :key="argument" class="dense-row">
+                    <v-col cols="1" class="dense-col align-center">
+                      <v-checkbox v-model="selectedTestExecutionArguments[argument]" class="text-sm-caption" density="compact" />
+                    </v-col>
+
+                    <v-col cols="11" class="dense-col">
+                      <v-text-field
+                        v-model="selectedTestExecutionArgumentValues[argument]"
+                        :label="argument"
+                        outlined
+                        density="compact"
+                        :disabled="!selectedTestExecutionArguments[argument]"
+                      >
+                        <template #append>
+                          <div>
+                            <v-icon color="tertiary" icon="fa fa-question-circle" size="x-small" />
+
+                            <v-tooltip activator="parent" location="top">
+                              {{ description }}
+                            </v-tooltip>
+                          </div>
+                        </template>
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
                 </div>
-              </template>
-            </v-text-field>
-
-            <!-- File Input -->
-            <v-file-input
-              v-model="projectFiles"
-              class="compact-input"
-              accept=".zip"
-              label="Choose a file"
-              prepend-icon=""
-              :clearable="true"
-              outlined
-              density="compact"
-              :rules="rules['projectFiles']"
-            >
-              <template #prepend-inner>
-                <v-icon color="tertiary" icon="fa fa-paperclip" size="x-small" />
-              </template>
-
-              <template #append>
-                <div>
-                  <v-icon color="tertiary" icon="fa fa-question-circle" size="x-small" />
-
-                  <v-tooltip activator="parent" location="top">
-                    The zipped project must include the following components:
-                    <br>
-                    remappings.txt, .gitmodules, the src folder, and the test folder
-                  </v-tooltip>
-                </div>
-              </template>
-            </v-file-input>
-
-            <!-- Container Timeout -->
-            <v-text-field
-              v-model="containerTimeout"
-              class="compact-input"
-              label="Container Timeout (e.g. 15)"
-              outlined
-              density="compact"
-              :rules="rules['containerTimeout']"
-            >
-              <template #prepend-inner>
-                <v-icon color="tertiary" icon="fa fa-clock" size="x-small" />
-              </template>
-
-              <template #append>
-                <div>
-                  <v-icon color="tertiary" icon="fa fa-question-circle" size="x-small" />
-
-                  <v-tooltip activator="parent" location="top">
-                    The maximum allowable timeout duration (in seconds)
-                    for the Docker containers created to execute the submissions
-                  </v-tooltip>
-                </div>
-              </template>
-            </v-text-field>
-
-            <!-- Test Execution Arguments -->
-            <div>
-              <v-btn variant="outlined" size="small" @click="toggleTestExecutionArgumentsSection">
-                {{ !showTestExecutionArguments ? 'Show' : 'Hide' }} Test Execution Arguments
-              </v-btn>
-
-              <div v-if="showTestExecutionArguments" class="scrollable-div">
-                <br>
-
-                <v-row v-for="(description, argument) in availableTestExecutionArguments" :key="argument" class="dense-row">
-                  <v-col cols="1" class="dense-col align-center">
-                    <v-checkbox v-model="selectedTestExecutionArguments[argument]" class="text-sm-caption" density="compact" />
-                  </v-col>
-
-                  <v-col cols="11" class="dense-col">
-                    <v-text-field
-                      v-model="selectedTestExecutionArgumentValues[argument]"
-                      :label="argument"
-                      outlined
-                      density="compact"
-                      :disabled="!selectedTestExecutionArguments[argument]"
-                    >
-                      <template #append>
-                        <div>
-                          <v-icon color="tertiary" icon="fa fa-question-circle" size="x-small" />
-
-                          <v-tooltip activator="parent" location="top">
-                            {{ description }}
-                          </v-tooltip>
-                        </div>
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                </v-row>
               </div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
+            </v-col>
+          </v-row>
+        </v-container>
 
-      <v-btn type="submit" color="secondary" size="large" rounded="xl" @click.prevent="uploadProject">
-        <p class="font-weight-black">
-          Upload
-        </p>
-      </v-btn>
-    </v-card-text>
-  </v-card>
+        <v-btn type="submit" color="secondary" size="large" rounded="xl" @click.prevent="uploadProject">
+          <p class="font-weight-black">
+            Upload
+          </p>
+        </v-btn>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 
 <script setup>

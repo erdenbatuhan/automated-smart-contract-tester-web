@@ -8,8 +8,8 @@ const getInitialState = (previousState) => ({
 const state = () => getInitialState();
 
 const getters = {
-  isLoggedIn: (state) => state.authenticatedUser,
-  isLoggedInAsAdmin: (state) => state.authenticatedUser && state.authenticatedUser.role === 'Admin'
+  isLoggedIn: (state) => !!state.authenticatedUser,
+  isLoggedInAsAdmin: (state) => !!state.authenticatedUser && state.authenticatedUser.role === 'Admin'
 };
 
 const actions = {
