@@ -58,7 +58,7 @@ const fetchSubmissions = () => {
   submissionsList.value = null;
 
   store.dispatch('handleRequestPromise', {
-    requestPromise: submissionServices.getAllSubmissions(),
+    request: submissionServices.getAllSubmissions,
     spinner: false
   })
     .then(addUsers)
@@ -134,7 +134,8 @@ const showContainerExecutionOutput = (selectedSubmission) => {
 
 const downloadSubmission = (selectedSubmission) => {
   return store.dispatch('handleRequestPromise', {
-    requestPromise: submissionServices.downloadSubmission(selectedSubmission.projectName, selectedSubmission._id),
+    request: submissionServices.downloadSubmission,
+    payload: [selectedSubmission.projectName, selectedSubmission._id],
     successMessage: `Downloaded the ${selectedSubmission.projectName} submission with ID=${selectedSubmission._id}!`
   }).then((fileResponse) => {
     // Download the file

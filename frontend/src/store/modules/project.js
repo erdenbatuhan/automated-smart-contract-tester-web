@@ -26,7 +26,7 @@ const actions = {
     commit('setAvailableTestExecutionArguments', null);
 
     return dispatch('handleRequestPromise', {
-      requestPromise: projectServices.getAvailableTestExecutionArguments()
+      request: projectServices.getAvailableTestExecutionArguments
     }, { root: true })
       .then((testExecutionArguments) => {
         commit('setAvailableTestExecutionArguments', testExecutionArguments);
@@ -40,7 +40,7 @@ const actions = {
     commit('setProjects', null);
 
     return dispatch('handleRequestPromise', {
-      requestPromise: projectServices.getAllProjects(),
+      request: projectServices.getAllProjects,
       spinner
     }, { root: true })
       .then(addUsers)
@@ -53,41 +53,46 @@ const actions = {
         commit('setProjects', []);
       });
   },
-  uploadProject: ({ rootState, commit, dispatch }, { isEdit, projectUploadPayload }) => {
-    const authenticatedUser = rootState.user.authenticatedUser;
-    const uploadFunction = isEdit
-      ? projectServices.uploadExistingProject
-      : projectServices.uploadNewProject;
-
-    return dispatch('handleRequestPromise', {
-      requestPromise: uploadFunction(...projectUploadPayload),
+  uploadProject: ({ rootState, commit, dispatch }, { isEdit, projectUploadPayload }) => (
+    dispatch('handleRequestPromise', {
+      request: isEdit ? projectServices.uploadExistingProject : projectServices.uploadNewProject,
+      payload: projectUploadPayload,
       successMessage: `The ${projectUploadPayload[0]} project has successfully been uploaded!`
     }, { root: true })
       .then(({ project: projectUploaded }) => {
-        commit('addOrUpdateProject', { project: projectUploaded, authenticatedUser });
-        return projectUploaded;
-      });
-  },
-  updateProjectConfig: ({ rootState, commit, dispatch }, { projectName, projectConfig }) => {
-    const authenticatedUser = rootState.user.authenticatedUser;
+        commit('addOrUpdateProject', {
+          project: projectUploaded,
+          authenticatedUser: rootState.user.authenticatedUser
+        });
 
-    return dispatch('handleRequestPromise', {
-      requestPromise: projectServices.updateProjectConfig(projectName, projectConfig),
+        return projectUploaded;
+      })
+  ),
+  updateProjectConfig: ({ rootState, commit, dispatch }, { projectName, projectConfig }) => (
+    dispatch('handleRequestPromise', {
+      request: projectServices.updateProjectConfig,
+      payload: [projectName, projectConfig],
       successMessage: `The config of the ${projectName} project has successfully been updated!`
     }, { root: true })
       .then((projectUpdated) => {
-        commit('addOrUpdateProject', { project: projectUpdated, authenticatedUser });
+        commit('addOrUpdateProject', {
+          project: projectUpdated,
+          authenticatedUser: rootState.user.authenticatedUser
+        });
         return projectUpdated;
-      });
-  },
-  deleteProject: ({ commit, dispatch }, deletedProject) => dispatch('handleRequestPromise', {
-    requestPromise: projectServices.deleteProject(deletedProject.projectName),
-    successMessage: `The ${deletedProject.projectName} project has successfully been deleted!`
-  }, { root: true })
-    .then(() => {
-      commit('deleteProject', deletedProject);
-      return deletedProject;
-    })
+      })
+  ),
+  deleteProject: ({ commit, dispatch }, deletedProject) => (
+    dispatch('handleRequestPromise', {
+      request: projectServices.deleteProject,
+      payload: [deletedProject.projectName],
+      successMessage: `The ${deletedProject.projectName} project has successfully been deleted!`
+    }, { root: true })
+      .then(() => {
+        commit('deleteProject', deletedProject);
+        return deletedProject;
+      })
+  )
 };
 
 const mutations = {

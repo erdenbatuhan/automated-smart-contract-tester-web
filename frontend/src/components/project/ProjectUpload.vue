@@ -177,7 +177,8 @@ watch(
     // Download the project files
     if (val?.projectName) {
       store.dispatch('handleRequestPromise', {
-        requestPromise: projectServices.downloadProject(val.projectName)
+        request: projectServices.downloadProject,
+        payload: [val.projectName]
       })
         .then((response) => {
           const file = new Blob([response]);

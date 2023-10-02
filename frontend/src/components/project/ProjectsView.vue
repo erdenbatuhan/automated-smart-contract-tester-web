@@ -93,7 +93,8 @@ const editProject = (editedProject) => {
 
 const downloadProject = (selectedProject) => {
   return store.dispatch('handleRequestPromise', {
-    requestPromise: projectServices.downloadProject(selectedProject.projectName),
+    request: projectServices.downloadProject,
+    payload: [selectedProject.projectName],
     successMessage: `Successfully downloaded the ${selectedProject.projectName} project!`
   })
     .then((fileResponse) => {

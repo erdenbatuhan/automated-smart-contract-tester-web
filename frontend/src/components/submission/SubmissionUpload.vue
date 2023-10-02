@@ -119,7 +119,8 @@ const uploadSubmission = () => {
 
   // Upload submission
   store.dispatch('handleRequestPromise', {
-    requestPromise: submissionServices.uploadSubmission(selectedProjectName.value, submissionFiles.value[0]),
+    request: submissionServices.uploadSubmission,
+    payload: [selectedProjectName.value, submissionFiles.value[0]],
     successMessage: `Successfully uploaded the submission for the ${selectedProjectName.value} project!`
   }, { root: true })
     .then(({ submission: submissionUploaded }) => {

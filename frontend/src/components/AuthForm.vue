@@ -44,16 +44,17 @@ const passwordError = ref(null);
 
 const submitForm = () => {
   store.dispatch(`user/${props.actionFunctionName}`, { email: email.value, password: password.value })
-  .then(() => (
-    router.push({ path: '/' })
-  ))
-  .catch(({ data }) => {
-    const emailErrorMatch = data?.error?.reason?.match(/email: (.+?)(?:\.|$)/i);
-    const passwordErrorMatch = data?.error?.reason?.match(/password: (.+?)(?:\.|$)/i);
+    .then(() => (
+      router.push({ path: '/' })
+    ))
+    .catch(({ data }) => {
+      const emailErrorMatch = data?.error?.reason?.match(/email: (.+?)(?:\.|$)/i);
+      const passwordErrorMatch = data?.error?.reason?.match(/password: (.+?)(?:\.|$)/i);
 
-    emailError.value = emailErrorMatch ? emailErrorMatch[1] : null;
-    passwordError.value = passwordErrorMatch ? passwordErrorMatch[1] : null;
-  });
+      emailError.value = emailErrorMatch ? emailErrorMatch[1] : null;
+      passwordError.value = passwordErrorMatch ? passwordErrorMatch[1] : null;
+    })
+    .catch(() => {});
 };
 </script>
 

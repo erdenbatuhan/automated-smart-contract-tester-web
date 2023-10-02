@@ -15,7 +15,8 @@ const getters = {
 const actions = {
   signup: ({ commit, dispatch }, user) => (
     dispatch('handleRequestPromise', {
-      requestPromise: authServices.signup(user),
+      request: authServices.signup,
+      payload: [user],
       successMessage: `Successfully signed up as ${user.email}.`,
       delay: 500
     }, { root: true })
@@ -23,7 +24,8 @@ const actions = {
   ),
   login: ({ commit, dispatch }, user) => (
     dispatch('handleRequestPromise', {
-      requestPromise: authServices.login(user),
+      request: authServices.login,
+      payload: [user],
       // successMessage: `Successfully logged in as ${user.email}.`
       delay: 500
     }, { root: true })
@@ -31,7 +33,7 @@ const actions = {
   ),
   logout: ({ state, commit, dispatch }) => (
     dispatch('handleRequestPromise', {
-      requestPromise: authServices.logout(),
+      request: authServices.logout,
       // successMessage: `Successfully signed out from ${state.authenticatedUser.email}.`,
       ignoreError: true,
       delay: 500
