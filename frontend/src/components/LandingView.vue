@@ -55,9 +55,9 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
-import ProjectsView from '@/components/ProjectsView.vue';
-import ProjectUpload from '@/components/ProjectUpload.vue';
-import SubmissionsView from '@/components/SubmissionsView.vue';
+import ProjectsView from '@/components/project/ProjectsView.vue';
+import ProjectUpload from '@/components/project/ProjectUpload.vue';
+import SubmissionsView from '@/components/submission/SubmissionsView.vue';
 import ContainerOutputView from '@/components/ContainerOutputView.vue';
 
 const tabs = ref({
