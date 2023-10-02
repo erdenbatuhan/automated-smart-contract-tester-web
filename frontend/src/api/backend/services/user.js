@@ -1,31 +1,33 @@
 import axios from '@/api/backend';
 
+import listUtils from '@/utils/listUtils';
+
 const BASE_URL_USERS = '/users';
 
-const getUsers = (userIds) => axios.get(`${BASE_URL_USERS}?ids=${userIds?.join(',') ?? ''}`)
-  .then((response) => {
-    response.data = Object.assign(...response.data.map((user) => (
-      { [user._id]: user }
-    )));
-
-    return response;
-  });
-
+const getUsers = (userIds) => axios.get(`${BASE_URL_USERS}?ids=${userIds?.join(',') ?? ''}`);
 const getUser = (userId) => axios.get(`${BASE_URL_USERS}/${userId}`);
-
 const removeUser = (userId) => axios.delete(`${BASE_URL_USERS}/${userId}`);
 
-export const addDeployerToData = (data) => {
-  const userIds = data.map(({ deployer }) => deployer);
+/**
+ * Adds users to an array of data based on their IDs.
+ *
+ * @param {Array} arr - The array of data to which users will be added.
+ * @param {string} [userKey='deployer'] - The key that represents the user in each data object.
+ * @returns {Promise<Array>} A promise that resolves to the updated array of data with users added.
+ */
+export const addUsers = (arr, userKey = 'deployer') => {
+  const userIds = arr.map(({ deployer }) => deployer);
   const distinctUserIds = [...new Set(userIds)];
 
-  // Fetch the users listed in the project as deployers, then add deployer emails to the project
-  return getUsers(distinctUserIds).then(({ data: users }) => (
-    data.map((item) => {
-      item['deployer'] = users[item['deployer']];
+  // Fetch the users listed in the data
+  return getUsers(distinctUserIds).then(({ data: users }) => {
+    const usersObjectified = listUtils.objectify(users);
+
+    return arr.map((item) => {
+      item[userKey] = usersObjectified[item[userKey]];
       return item;
-    })
-  ));
+    });
+  });
 };
 
 export default {

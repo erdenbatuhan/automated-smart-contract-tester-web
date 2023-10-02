@@ -1,3 +1,13 @@
+/**
+ * Sends a FormData request using Axios.
+ *
+ * @param {AxiosInstance} axiosInstance - Axios instance for making the request.
+ * @param {string} url - The URL to send the request to.
+ * @param {string} method - The HTTP method for the request (e.g., 'POST', 'PUT').
+ * @param {object} requestFile - The file to include in the FormData.
+ * @param {object} [requestBody] - Additional request body parameters.
+ * @returns {Promise} A Promise that resolves when the request is complete.
+ */
 const sendFormDataRequest = (axiosInstance, url, method, requestFile, requestBody) => {
   // Create a FormData object and append the file
   const formData = new window.FormData();
@@ -23,9 +33,11 @@ const sendFormDataRequest = (axiosInstance, url, method, requestFile, requestBod
     method,
     maxBodyLength: Infinity,
     url,
-    headers: { 'Content-Type': 'multipart/form-project' },
+    headers: { 'Content-Type': 'multipart/form-data' },
     data: formData
   });
 };
 
-export default { sendFormDataRequest };
+export default {
+  sendFormDataRequest
+};

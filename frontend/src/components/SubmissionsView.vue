@@ -21,9 +21,10 @@ import { useStore } from 'vuex';
 
 import DataView from '@/components/data-view/DataView.vue';
 
-import { addDeployerToData } from '@/api/backend/services/user';
+import { addUsers } from '@/api/backend/services/user';
 import submissionServices from '@/api/backend/services/submission';
 
+import listUtils from '@/utils/listUtils';
 import sortingUtils from '@/utils/sortingUtils';
 import dateUtils from '@/utils/dateUtils';
 import browserUtils from '@/utils/browserUtils';
@@ -49,7 +50,7 @@ const projectsList = computed(() => store.getters['project/projectsList']);
 
 const submissionsList = ref(null);
 const submissions = ref(null);
-const submissionViews = ref(null);
+const submissionViews = ref([]);
 
 const fetchSubmissions = () => {
   submissionsList.value = null;
@@ -58,7 +59,7 @@ const fetchSubmissions = () => {
     requestPromise: submissionServices.getAllSubmissions(),
     spinner: false
   })
-    .then(addDeployerToData)
+    .then(addUsers)
     .then((submissionsRetrieved) => {
       submissionsList.value = sortingUtils.sortByDate(submissionsRetrieved, 'updatedAt');
     })
@@ -105,8 +106,8 @@ const getSubmissionView = ({ _id, project: projectId, testStatus, results, updat
 watch(
   () => submissionsList.value,
   (val) => {
-    submissions.value = val ? Object.assign(...val.map((submission) => ({ [submission._id]: submission }))) : null;
-    submissionViews.value = val?.map(getSubmissionView) ?? null;
+    submissions.value = listUtils.objectify(val);
+    submissionViews.value = val?.map(getSubmissionView) || null;
   },
   { immediate: true }
 );

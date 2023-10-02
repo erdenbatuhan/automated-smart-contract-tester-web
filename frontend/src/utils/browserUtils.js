@@ -1,3 +1,11 @@
+/**
+ * Downloads a file in the client's browser.
+ *
+ * @param {string} filename - The name for the downloaded file.
+ * @param {Uint8Array | ArrayBuffer | Blob} file - The file content to be downloaded.
+ * @param {string} [ext='zip'] - The file extension for the downloaded file.
+ * @returns {void}
+ */
 const downloadFile = (filename, file, ext = 'zip') => {
   // Create a hidden anchor element to trigger the download
   const anchor = document.createElement('a');

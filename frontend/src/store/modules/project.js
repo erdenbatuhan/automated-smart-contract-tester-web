@@ -1,6 +1,7 @@
-import { addDeployerToData } from '@/api/backend/services/user';
+import { addUsers } from '@/api/backend/services/user';
 import projectServices from '@/api/backend/services/project';
 
+import listUtils from '@/utils/listUtils';
 import sortingUtils from '@/utils/sortingUtils';
 
 const getInitialState = (previousState) => ({
@@ -37,7 +38,7 @@ const actions = {
       requestPromise: projectServices.getAllProjects(),
       spinner
     }, { root: true })
-      .then(addDeployerToData)
+      .then(addUsers)
       .then((projects) => sortingUtils.sortByDate(projects, 'updatedAt'))
       .then((projects) => {
         commit('setProjects', projects);
@@ -92,7 +93,7 @@ const mutations = {
     state.availableTestExecutionArguments = availableTestExecutionArguments;
   },
   setProjects: (state, projects) => {
-    state.projects = projects ? Object.assign(...projects.map((project) => ({ [project._id]: project }))) : null;
+    state.projects = listUtils.objectify(projects);
   },
   addOrUpdateProject: (state, { project, authenticatedUser }) => {
     // If the project is already in the list, delete it first

@@ -1,3 +1,9 @@
+/**
+ * Formats a date string into a human-readable date and time format.
+ *
+ * @param {string} dateString - The date string to be formatted.
+ * @returns {string} A formatted date and time string.
+ */
 const formatDate = (dateString) => {
   const options = {
     year: 'numeric',
