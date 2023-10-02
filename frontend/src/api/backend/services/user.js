@@ -19,6 +19,9 @@ export const addUsers = (arr, userKey = 'deployer') => {
   const userIds = arr.map(({ deployer }) => deployer);
   const distinctUserIds = [...new Set(userIds)];
 
+  // Check if there are any users to fetch
+  if (distinctUserIds.length === 0) return Promise.resolve(arr);
+
   // Fetch the users listed in the data
   return getUsers(distinctUserIds).then(({ data: users }) => {
     const usersObjectified = listUtils.objectify(users);
