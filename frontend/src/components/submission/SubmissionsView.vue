@@ -86,7 +86,7 @@ const getSubmissionView = ({ _id, project: projectId, testStatus, results, updat
 
   return {
     _id,
-    projectName: projects.value ? projects.value[projectId].projectName : 'N/A',
+    projectName: projects.value[projectId] ? projects.value[projectId].projectName : '-',
     status: (testStatus === 'Passed' ? results?.status ?? testStatus : testStatus) ?? 'Pending',
     dockerExitCode: results?.statusCode,
     containerName: results?.containerName,
