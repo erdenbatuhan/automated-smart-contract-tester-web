@@ -5,43 +5,22 @@ This application relies on [Automated Smart Contract Tester](https://github.com/
 ## Contents
 
 - [Local Development](#local-development)
-  - [Overriding Environment Variables](#overriding-environment-variables)
-  - [Prerequisites](#prerequisites)
+  - [Setup](#setup)
   - [Starting the Application](#starting-the-application)
   - [Running Lint Checks](#running-lint-checks)
 - [Running the Application with Docker](#running-the-application-with-docker)
   - [Start Docker Containers](#start-docker-containers)
   - [Stop Docker Containers](#stop-docker-containers)
   - [Clean Up Docker Resources](#clean-up-docker-resources)
+- [(Optional) Overriding Environment Variables](#optional-overriding-environment-variables)
 
 ## Local Development
 
-### Overriding Environment Variables
-
-You can customize certain environment variables defined in `.env` by creating a `.env.local` file based on the configuration of the host machine where you're running this application. To ensure successful overrides, it's important to import `.env.local` after `.env` (This is already how it is set up in the `Makefile`). Here's an example:
-
-**Important:** You do not need to follow these steps if you plan to run the application with Docker. If that is the case, please directly follow the instructions under [Running the Application with Docker](#running-the-application-with-docker).
-
-1. In your `.env.local` file, set the `VUE_APP_BACKEND_HOST` variable to the following value. If your backend is running on a different port other than _4000_, make sure to update the port accordingly. This will allow for seamless communication with the backend on your local environment, even without a Docker network.
-2. Make sure to uncomment the port binding for the `services` service in the [docker-compose.prod.yml](https://github.com/erdenbatuhan/automated-smart-contract-tester/blob/master/docker-compose.prod.yml) file of the [Automated Smart Contract Tester](https://github.com/erdenbatuhan/automated-smart-contract-tester) application. This step is necessary to allow the frontend to communicate effectively with the backend on your local machine.
+### Setup
 
 ```bash
-### ------------------------------ ###
-###  File:         .env.local      ###
-###  Description:  Overrides .env  ###
-### ------------------------------ ###
-
-# Frontend Application Configuration
-PORT=8080
-
-# Vue App Environment Variables (These variables are used by the Vue.js application)
-VUE_APP_BACKEND_HOST=http://localhost:4000
+npm install
 ```
-
-### Prerequisites
-
-- Follow the instructions in [Overriding Environment Variables](#overriding-environment-variables)
-- Install the required dependencies by executing `npm install`.
 
 ### Starting the Application
 
@@ -88,4 +67,24 @@ This command will remove images, containers, volumes (e.g., dangling volumes suc
 
 ```bash
 make clean
+```
+
+## (Optional) Overriding Environment Variables
+
+You can customize certain environment variables defined in `.env` by creating a `.env.local` file based on the configuration of the host machine where you're running this application. To ensure successful overrides, it's important to import `.env.local` after `.env` (This is already how it is set up in the `Makefile`). Here's an example:
+
+1. In your `.env.local` file, set the `VUE_APP_BACKEND_HOST` variable to the following value. If your backend is running on a different port other than _5005_, make sure to update the port accordingly. This will allow for communication with the backend on your local environment.
+2. Make sure to check the port binding for the `services` service in the [docker-compose.prod.yml](https://github.com/erdenbatuhan/automated-smart-contract-tester/blob/master/docker-compose.prod.yml) file of the [Automated Smart Contract Tester](https://github.com/erdenbatuhan/automated-smart-contract-tester) application.
+
+```bash
+### ------------------------------ ###
+###  File:         .env.local      ###
+###  Description:  Overrides .env  ###
+### ------------------------------ ###
+
+# Frontend Application Configuration
+PORT=8080
+
+# Vue App Environment Variables (These variables are used by the Vue.js application)
+VUE_APP_BACKEND_HOST=http://localhost:5005
 ```
