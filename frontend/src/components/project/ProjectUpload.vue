@@ -147,7 +147,7 @@ import { HttpStatusCode } from 'axios';
 import projectServices from '@/api/backend/services/project';
 
 const props = defineProps({ projectEdited: { type: Object, default: null } });
-const emit = defineEmits(['project-upload', 'project-config-update']);
+const emit = defineEmits(['project-upload']);
 const store = useStore();
 
 const isEditMode = computed(() => !!props.projectEdited);
@@ -178,12 +178,14 @@ watch(
     if (val?.projectName) {
       store.dispatch('handleRequestPromise', {
         requestPromise: projectServices.downloadProject(val.projectName)
-      }).then((response) => {
-        const file = new Blob([response]);
-        file.name = `${val.projectName}.zip`;
+      })
+        .then((response) => {
+          const file = new Blob([response]);
+          file.name = `${val.projectName}.zip`;
 
-        projectFiles.value = [file];
-      });
+          projectFiles.value = [file];
+        })
+        .catch(() => {});
     }
 
     // Set the test execution arguments
@@ -289,6 +291,6 @@ const uploadProject = () => {
 }
 
 button[type=submit] {
-  margin-top: 2em;
+  margin-top: 1em;
 }
 </style>

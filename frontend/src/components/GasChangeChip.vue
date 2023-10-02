@@ -36,6 +36,6 @@ const formattedValue = computed(() => {
 });
 
 const chipColor = computed(() => {
-  return fieldValue.value <= 0 ? 'success' : 'error';
+  return fieldValue.value <= 0 ? 'info' : 'warning';
 });
 </script>

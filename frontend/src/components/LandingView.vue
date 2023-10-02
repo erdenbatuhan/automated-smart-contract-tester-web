@@ -37,7 +37,13 @@
 
           <SubmissionsView
             v-if="tabName === 'tab-all_submissions'"
+            :new-submission="submissionUploaded"
             @container-output-request="onContainerOutputRequest"
+          />
+
+          <SubmissionUpload
+            v-else-if="tabName === 'tab-submission_upload'"
+            @submission-upload="onSubmissionUpload"
           />
 
           <ContainerOutputView
@@ -52,12 +58,13 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import ProjectsView from '@/components/project/ProjectsView.vue';
 import ProjectUpload from '@/components/project/ProjectUpload.vue';
 import SubmissionsView from '@/components/submission/SubmissionsView.vue';
+import SubmissionUpload from '@/components/submission/SubmissionUpload.vue';
 import ContainerOutputView from '@/components/ContainerOutputView.vue';
 
 const tabs = ref({
@@ -102,6 +109,7 @@ const isAdmin = computed(() => store.getters['user/isLoggedInAsAdmin']);
 
 const tab = ref(null);
 const projectBeingEdited = ref(null);
+const submissionUploaded = ref(null);
 const containerExecutionOutputPayload = ref(null);
 
 // Watcher: isLoggedIn (computed(() => store.getters['user/isLoggedIn']))
@@ -128,6 +136,11 @@ const onContainerOutputRequest = ({ projectName, config, container }) => {
 
 const onProjectUpdate = () => {
   tab.value = 'tab-all_projects';
+};
+
+const onSubmissionUpload = (submission) => {
+  submissionUploaded.value = submission;
+  tab.value = 'tab-all_submissions';
 };
 
 // Watcher: tab

@@ -6,7 +6,7 @@
  * @returns {Object} An object where keys are extracted from the specified property, and values are the original objects.
  */
 const objectify = (items, key = '_id') => {
-  if (!items) return null;
+  if (!items || items.length === 0) return items;
 
   return Object.assign(...items.map((item) => (
     { [item[key]]: item }

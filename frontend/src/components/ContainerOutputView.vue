@@ -42,8 +42,18 @@
                   {{ dockerExitCode }}
 
                   <v-tooltip activator="parent" location="top">
-                    <span v-if="containerError"> {{ containerError }}  </span>
-                    <span v-else> {{ dockerExitCodeDescriptions[dockerExitCode] || 'No information available!' }} </span>
+                    <div>
+                      <span style="color: white">
+                        Docker container exited with code {{ dockerExitCode }}.
+                        <br>
+                        " {{ dockerExitCodeDescriptions[dockerExitCode] || '' }} "
+                      </span>
+
+                      <div v-if="containerError">
+                        <hr>
+                        <span style="color: white"> {{ containerError }} </span>
+                      </div>
+                    </div>
                   </v-tooltip>
                 </v-chip>
               </div>

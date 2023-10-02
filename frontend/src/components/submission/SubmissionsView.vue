@@ -2,6 +2,7 @@
   <v-container>
     <DataView
       data-name="submission"
+      :refresh-interval="20"
       :table-headers="TABLE_HEADERS"
       :items="submissionViews"
       has-container-execution-output
@@ -34,6 +35,7 @@ const TABLE_HEADERS = [
   { title: 'Project Name', key: 'projectName', align: 'center' },
   { title: 'Container Name', key: 'containerName', align: 'center' },
   { title: 'Status', key: 'status', align: 'center', sortable: false },
+  { title: 'Passed', key: 'numTestsPassed', align: 'center' },
   { title: 'Total Gas', key: 'totalGas', align: 'center' },
   { title: 'Total Gas Change', key: 'totalGasChange', align: 'center' },
   { title: 'Execution Time (sec)', key: 'executionTimeSeconds', align: 'center' },
@@ -72,7 +74,7 @@ const fetchSubmissions = () => {
 watch(
   () => projectsList.value,
   (val) => {
-    if (val && val.length > 0) {
+    if (val) {
       fetchSubmissions();
     }
   },
@@ -116,9 +118,9 @@ watch(
 watch(
   () => props.newSubmission,
   (val) => {
-    if (val) {
+    if (val && submissionsList.value) {
       // Prepend the new submission to the list
-      submissionsList.value.unshift(val);
+      submissionsList.value = [val, ...submissionsList.value];
     }
   }
 );

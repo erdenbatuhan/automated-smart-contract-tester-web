@@ -53,8 +53,8 @@
             </div>
             <!-- ID, Project Name & Container Name -->
             <div v-else-if="['_id', 'projectName', 'containerName'].includes(column.key)">
-              <p class="text-truncate" style="width: 12em;">
-                {{ item[column.key] }}
+              <p class="text-truncate" style="width: 10em;">
+                {{ item[column.key] || '-' }}
 
                 <v-tooltip activator="parent" location="top">
                   {{ item[column.key] }}
@@ -71,21 +71,24 @@
                 }}
 
                 <v-tooltip activator="parent" location="top">
-                  <div v-if="item.numPassed >= 0 && item.numTests >= 0">
-                    <span style="color: white"> Number of tests passed: {{ item.numPassed }} / {{ item.numTests }} </span>
-                    <hr>
-                  </div>
-
                   <div v-if="typeof item.dockerExitCode === 'number'">
                     <span style="color: white"> Docker container exited with code {{ item.dockerExitCode }}. </span>
-                    <br>
-                    <span v-if="item.containerError" style="color: white"> {{ item.containerError }} </span>
-                  </div>
 
+                    <div v-if="item.containerError">
+                      <hr>
+                      <span style="color: white"> {{ item.containerError }} </span>
+                    </div>
+                  </div>
                   <span v-else-if="item.externalContainerError"> Error: {{ item.externalContainerError }} </span>
                   <span v-else> No information available! </span>
                 </v-tooltip>
               </v-chip>
+            </div>
+            <!-- Number of Tests Passed -->
+            <div v-else-if="column.key === 'numTestsPassed'">
+              <span>
+                {{ item.numPassed || '-' }} / {{ item.numTests || '-' }}
+              </span>
             </div>
             <!-- Total Gas Change -->
             <div v-else-if="column.key === 'totalGasChange'">

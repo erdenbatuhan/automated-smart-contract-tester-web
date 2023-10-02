@@ -13,7 +13,12 @@ const getInitialState = (previousState) => ({
 const state = () => getInitialState();
 
 const getters = {
-  projectsList: (state) => state.projects ? Object.values(state.projects) : null
+  projectsList: (state) => state.projects ? Object.values(state.projects) : null,
+  successfulProjectNames: (state) => state.projects
+    ? Object.values(state.projects)
+      .filter(({ testStatus }) => testStatus === 'Passed')
+      .map(({ projectName }) => projectName)
+    : null
 };
 
 const actions = {
