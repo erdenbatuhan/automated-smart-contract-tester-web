@@ -125,7 +125,7 @@ watch(
 
 const showContainerExecutionOutput = (selectedSubmission) => {
   emit('container-output-request', {
-    submissionName: selectedSubmission.projectName,
+    projectName: selectedSubmission.projectName,
     container: submissions.value[selectedSubmission._id].results
   });
 };
