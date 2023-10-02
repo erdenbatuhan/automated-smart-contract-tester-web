@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
 import ProjectsView from '@/components/ProjectsView.vue';
@@ -104,6 +104,18 @@ const tab = ref(null);
 const projectBeingEdited = ref(null);
 const containerExecutionOutputPayload = ref(null);
 
+// Watcher: isLoggedIn (computed(() => store.getters['user/isLoggedIn']))
+watch(
+  () => isLoggedIn.value,
+  (val) => {
+    if (val) {
+      store.dispatch('project/fetchProjects', { spinner: true });
+      store.dispatch('project/fetchAvailableTestExecutionArguments');
+    }
+  },
+  { immediate: true }
+);
+
 const onProjectEdit = (project) => {
   projectBeingEdited.value = project;
   tab.value = 'tab-project_upload';
@@ -118,6 +130,7 @@ const onProjectUpdate = () => {
   tab.value = 'tab-all_projects';
 };
 
+// Watcher: tab
 watch(
   () => tab.value,
   (newTab, oldTab) => {

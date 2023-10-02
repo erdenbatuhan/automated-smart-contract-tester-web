@@ -25,8 +25,9 @@ const store = createStore({
       commit('project/resetState');
       commit('user/resetState');
     },
-    handleRequestPromise: ({ commit }, { requestPromise, successMessage, spinner = true, ignoreError = false }) => {
+    handleRequestPromise: async ({ commit }, { requestPromise, successMessage, spinner = true, ignoreError = false, delay }) => {
       if (spinner) commit('global/setSpinner', true);
+      if (delay) await new Promise((resolve) => setTimeout(() => resolve(), delay));
 
       return requestPromise
         .then((response) => {

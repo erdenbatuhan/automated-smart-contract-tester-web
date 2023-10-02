@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useStore } from 'vuex';
 
-import Home from '@/components/Home.vue';
+import LandingView from '@/components/LandingView.vue';
 import AuthForm from '@/components/AuthForm.vue';
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home,
+    name: 'LandingView',
+    component: LandingView,
     meta: { requiresAuth: true }
   },
   {

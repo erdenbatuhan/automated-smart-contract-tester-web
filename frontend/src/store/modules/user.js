@@ -13,27 +13,31 @@ const getters = {
 };
 
 const actions = {
-  signup: ({ commit, dispatch }, user) => {
-    const requestPromise = authServices.signup(user);
-    const successMessage =  `Successfully signed up as ${user.email}.`;
-
-    return dispatch('handleRequestPromise', { requestPromise, successMessage }, { root: true })
-      .then(({ user }) => commit('setAuthenticatedUser', user));
-  },
-  login: ({ commit, dispatch }, user) => {
-    const requestPromise = authServices.login(user);
-    const successMessage = `Successfully logged in as ${user.email}.`;
-
-    return dispatch('handleRequestPromise', { requestPromise, successMessage }, { root: true })
-      .then(({ user }) => commit('setAuthenticatedUser', user));
-  },
-  logout: ({ state, commit, dispatch }) => {
-    const requestPromise = authServices.logout();
-    const successMessage = `Successfully signed out from ${state.authenticatedUser.email}.`;
-
-    return dispatch('handleRequestPromise', { requestPromise, successMessage, ignoreError: true }, { root: true })
-      .finally(() => commit('removeAuthenticatedUser'));
-  }
+  signup: ({ commit, dispatch }, user) => (
+    dispatch('handleRequestPromise', {
+      requestPromise: authServices.signup(user),
+      successMessage: `Successfully signed up as ${user.email}.`,
+      delay: 500
+    }, { root: true })
+      .then(({ user }) => commit('setAuthenticatedUser', user))
+  ),
+  login: ({ commit, dispatch }, user) => (
+    dispatch('handleRequestPromise', {
+      requestPromise: authServices.login(user),
+      // successMessage: `Successfully logged in as ${user.email}.`
+      delay: 500
+    }, { root: true })
+      .then(({ user }) => commit('setAuthenticatedUser', user))
+  ),
+  logout: ({ state, commit, dispatch }) => (
+    dispatch('handleRequestPromise', {
+      requestPromise: authServices.logout(),
+      // successMessage: `Successfully signed out from ${state.authenticatedUser.email}.`,
+      ignoreError: true,
+      delay: 500
+    }, { root: true })
+      .finally(() => commit('removeAuthenticatedUser'))
+  )
 };
 
 const mutations = {
