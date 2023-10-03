@@ -9,6 +9,8 @@ services:
     restart: unless-stopped
     networks:
       application-network: # External network for accessing the backend application
+    volumes:
+      - ./docker/prod/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "${PORT}:80"
     environment:
