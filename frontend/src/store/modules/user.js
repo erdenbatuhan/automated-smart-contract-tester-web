@@ -31,7 +31,7 @@ const actions = {
     }, { root: true })
       .then(({ user }) => commit('setAuthenticatedUser', user))
   ),
-  logout: ({ state, commit, dispatch }) => (
+  logout: ({ commit, dispatch }) => (
     dispatch('handleRequestPromise', {
       request: authServices.logout,
       // successMessage: `Successfully signed out from ${state.authenticatedUser.email}.`,

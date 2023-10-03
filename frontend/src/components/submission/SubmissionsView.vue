@@ -48,38 +48,11 @@ const emit = defineEmits(['container-output-request', 'submission-edit']);
 const store = useStore();
 
 const projects = computed(() => store.state['project'].projects);
-const projectsList = computed(() => store.getters['project/projectsList']);
+const projectNames = computed(() => store.getters['project/successfulProjectNames']);
 
-const submissionsList = ref(null);
 const submissions = ref(null);
+const submissionsList = ref(null);
 const submissionViews = ref([]);
-
-const fetchSubmissions = () => {
-  submissionsList.value = null;
-
-  store.dispatch('handleRequestPromise', {
-    request: submissionServices.getAllSubmissions,
-    spinner: false
-  })
-    .then(addUsers)
-    .then((submissionsRetrieved) => {
-      submissionsList.value = sortingUtils.sortByDate(submissionsRetrieved, 'updatedAt');
-    })
-    .catch(() => {
-      submissionsList.value = [];
-    });
-};
-
-// Watcher: projectsList (store.getters['project/projectsList'])
-watch(
-  () => projectsList.value,
-  (val) => {
-    if (val) {
-      fetchSubmissions();
-    }
-  },
-  { immediate: true }
-);
 
 const getSubmissionView = ({ _id, project: projectId, testStatus, results, updatedAt, deployer }) => {
   const overallResults = results?.output?.overall;
@@ -104,12 +77,39 @@ const getSubmissionView = ({ _id, project: projectId, testStatus, results, updat
   };
 };
 
-// Watcher: submissionsList
+const setSubmissions = (val) => {
+  submissions.value = listUtils.objectify(val);
+  submissionsList.value = val;
+  submissionViews.value = val?.map(getSubmissionView) || null;
+};
+
+const fetchSubmissions = () => {
+  setSubmissions(null);
+
+  Promise.all(projectNames.value.map((projectName) => (
+    store.dispatch('handleRequestPromise', {
+      request: submissionServices.getAllSubmissions,
+      payload: [projectName],
+      spinner: false
+    })
+      .then(addUsers)
+  )))
+    .then((submissionsList) => {
+      const submissionsMerged = listUtils.mergeLists(submissionsList);
+      setSubmissions(sortingUtils.sortByDate(submissionsMerged, 'updatedAt'));
+    })
+    .catch(() => {
+      setSubmissions([]);
+    });
+};
+
+// Watcher: projectNames (store.getters['project/successfulProjectNames'])
 watch(
-  () => submissionsList.value,
+  () => projectNames.value,
   (val) => {
-    submissions.value = listUtils.objectify(val);
-    submissionViews.value = val?.map(getSubmissionView) || null;
+    if (val) {
+      fetchSubmissions();
+    }
   },
   { immediate: true }
 );
@@ -120,7 +120,7 @@ watch(
   (val) => {
     if (val && submissionsList.value) {
       // Prepend the new submission to the list
-      submissionsList.value = [val, ...submissionsList.value];
+      setSubmissions([val, ...submissionsList.value]);
     }
   }
 );

@@ -14,6 +14,16 @@ const objectify = (items, key = '_id') => {
 };
 
 /**
+ * Merge multiple arrays into a single array.
+ *
+ * This function takes an array of arrays and concatenates them into a single array.
+ *
+ * @param {Array[]} lists - An array containing arrays to be merged.
+ * @returns {Array} A new array containing elements from all input arrays.
+ */
+const mergeLists = (lists) => [].concat(...lists);
+
+/**
  * Adds or updates an item within an array of items based on a specified key property.
  *
  * @param {Array} items - The array of items to be modified.
@@ -54,6 +64,7 @@ const removeItem = (items, deletedItem, key) => {
 
 export default {
   objectify,
+  mergeLists,
   addOrUpdateItem,
   removeItem
 };
