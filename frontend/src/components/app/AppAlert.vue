@@ -33,6 +33,8 @@ import { HttpStatusCode } from 'axios';
 const store = useStore();
 const router = useRouter();
 
+const isLoggedIn = computed(() => store.getters['user/isLoggedIn']);
+
 const alertShown = ref(false);
 const alertType = ref(null);
 const alertTitle = ref(null);
@@ -42,8 +44,9 @@ const alertReason = ref(null);
 const isTokenExpired = ({ status }) => (
   // Verify if the status code is "unauthorized" and the user is still logged in,
   // indicating that the token has expired and a new login is necessary.
-  status === HttpStatusCode.Unauthorized && computed(() => store.getters['user/isLoggedIn'])
+  status === HttpStatusCode.Unauthorized && isLoggedIn.value
 );
+
 const isSuccessfulResponse = ({ status }) => status && status >= 200 && status < 300;
 
 watch(
@@ -52,22 +55,25 @@ watch(
     if (!newAlert) return;
 
     // Verify if the token has expired; if it has, log the user out and redirect them to the home page.
-    if (isTokenExpired(newAlert)) return router.push({ path: '/' });
+    if (isTokenExpired(newAlert)) {
+      newAlert.data = { error: { message: 'Your token has expired! Please log in again.' } };
+      store.dispatch('user/logout').finally(() => router.push({ path: '/' }));
+    }
 
-    if (!newAlert?.status) { // Info
+    if (!newAlert.status) { // Info
       alertType.value = 'info';
       alertTitle.value = 'Info';
-      alertMessage.value = newAlert?.data?.message;
+      alertMessage.value = newAlert.data?.message;
       alertReason.value = null;
     } else if (!isSuccessfulResponse(newAlert)) { // Error
       alertType.value = 'error';
-      alertTitle.value = `Error (${newAlert?.status} - ${newAlert?.statusText})`;
-      alertMessage.value = newAlert?.data?.error?.message ?? newAlert.data;
-      alertReason.value = newAlert?.data?.error?.reason;
+      alertTitle.value = `Error (${newAlert.status} - ${newAlert.statusText})`;
+      alertMessage.value = newAlert.data?.error?.message ?? newAlert.data;
+      alertReason.value = newAlert.data?.error?.reason;
     } else { // Success
       alertType.value = 'success';
-      alertTitle.value = `Success (${newAlert?.status} - ${newAlert?.statusText})`;
-      alertMessage.value = newAlert?.data;
+      alertTitle.value = `Success (${newAlert.status} - ${newAlert.statusText})`;
+      alertMessage.value = newAlert.data;
       alertReason.value = null;
     }
 

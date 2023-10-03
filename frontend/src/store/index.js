@@ -44,8 +44,8 @@ const store = createStore({
           if (spinner) commit('global/setSpinner', false);
         });
     }
-  },
-  plugins: [logger] // Enable the logger as a plugin
+  }
+  // plugins: [logger] // Enable the logger as a plugin
 });
 
 export default store;
