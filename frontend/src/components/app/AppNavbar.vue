@@ -1,6 +1,10 @@
 <template>
   <nav>
-    <h2><a href="/frontend/public"> Automated Smart Contract Tester </a></h2>
+    <h2>
+      <router-link to="/">
+        Automated Smart Contract Tester
+      </router-link>
+    </h2>
 
     <ul v-if="authenticatedUser">
       <li>
