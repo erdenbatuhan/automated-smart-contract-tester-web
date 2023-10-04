@@ -4,11 +4,17 @@ This repository demonstrates the creation of an end-to-end system utilizing the 
 
 To configure the entire system, please refer to the setup instructions provided in the following two projects:
 
-## [Backend (Automated Smart Contract Tester)](https://github.com/erdenbatuhan/automated-smart-contract-tester)
+## [Backend: Automated Smart Contract Tester](https://github.com/erdenbatuhan/automated-smart-contract-tester)
 
-The [Automated Smart Contract Tester](https://github.com/erdenbatuhan/automated-smart-contract-tester) application serves as the backend component for this project.
+The [Automated Smart Contract Tester](https://github.com/erdenbatuhan/automated-smart-contract-tester) serves as the backend component for this project.
 
-Please follow the guidelines outlined in its [README](https://github.com/erdenbatuhan/automated-smart-contract-tester/blob/master/README.md) to set it up and run it.
+Begin by obtaining the project using the command below:
+
+```bash
+git submodule update --init --recursive
+```
+
+Subsequently, refer to the guidelines provided in its [README](https://github.com/erdenbatuhan/automated-smart-contract-tester/blob/master/README.md) for setup and execution instructions.
 
 ## [Frontend](./frontend)
 
