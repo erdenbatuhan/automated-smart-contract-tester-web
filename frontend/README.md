@@ -12,9 +12,11 @@ This application relies on [Automated Smart Contract Tester](https://github.com/
   - [Start Docker Containers](#start-docker-containers)
   - [Stop Docker Containers](#stop-docker-containers)
   - [Clean Up Docker Resources](#clean-up-docker-resources)
-- [(Optional) Overriding Environment Variables](#optional-overriding-environment-variables)
+- [(Optional) Modifying Environment Variables](#optional-modifying-environment-variables)
 
 ## Local Development
+
+**Note:** Ensure you configure port bindings for local development in the backend service. Specifically, uncomment the port binding for the `services` service within the [docker/docker-compose.production.yml](https://github.com/erdenbatuhan/automated-smart-contract-tester/blob/master/docker/docker-compose.production.yml) file, found in the [Automated Smart Contract Tester](https://github.com/erdenbatuhan/automated-smart-contract-tester) repository, before building and running the service.
 
 ### Setup
 
@@ -41,15 +43,16 @@ npm run lint
 To start Docker containers for the application, use the following command:
 
 ```bash
-make start ENV=prod ARGS=-d # Start containers in the background for production
+make start ENV=production ARGS=-d # Start containers in the background for production
 ```
 
-You can specify the environment using the `ENV` argument with the following options:
+Utilize the `ENV` argument to define the environment with the options below:
 
-- **Development:** `dev`
-- **Production:** `prod`
+- **Development:** `development`.
+  - **Note:** Before building and running the backend service in the development environment, ensure to uncomment the port binding for the `services` service. Find the necessary configuration within the [docker/docker-compose.production.yml](https://github.com/erdenbatuhan/automated-smart-contract-tester/blob/master/docker/docker-compose.production.yml) file in the [Automated Smart Contract Tester](https://github.com/erdenbatuhan/automated-smart-contract-tester) repository.
+- **Production:** `production`.
 
-This command will also stop any existing containers associated with this application before launching new ones.
+Executing this command will halt any active containers related to this application before initializing new ones.
 
 ### Stop Docker Containers
 
@@ -69,22 +72,8 @@ This command will remove images, containers, volumes (e.g., dangling volumes suc
 make clean
 ```
 
-## (Optional) Overriding Environment Variables
+## (Optional) Modifying Environment Variables
 
-You can customize certain environment variables defined in `.env` by creating a `.env.local` file based on the configuration of the host machine where you're running this application. To ensure successful overrides, it's important to import `.env.local` after `.env` (This is already how it is set up in the `Makefile`). Here's an example:
+Customization of specific environment variables specified in the `.env` file can be achieved by creating an additional `.env.local` file or an environment-specific `.env.[ENV].local` file (for instance, `.env.production.local` for a production environment). This adaptation should correspond with the configuration of the host machine where the application is being run.
 
-1. In your `.env.local` file, set the `VUE_APP_BACKEND_HOST` variable to the following value. If your backend is running on a different port other than _5005_, make sure to update the port accordingly. This will allow for communication with the backend on your local environment.
-2. Make sure to check the port binding for the `services` service in the [docker-compose.prod.yml](https://github.com/erdenbatuhan/automated-smart-contract-tester/blob/master/docker-compose.prod.yml) file of the [Automated Smart Contract Tester](https://github.com/erdenbatuhan/automated-smart-contract-tester) application.
-
-```bash
-### ------------------------------ ###
-###  File:         .env.local      ###
-###  Description:  Overrides .env  ###
-### ------------------------------ ###
-
-# Frontend Application Configuration
-PORT=8080
-
-# Vue App Environment Variables (These variables are used by the Vue.js application)
-VUE_APP_BACKEND_HOST=http://localhost:5005
-```
+For effective variable overriding, ensure that `.env.local` is imported subsequent to `.env`. Note that this order is already configured in the `Makefile`.

@@ -9,6 +9,3 @@ dist/
 
 # Dependency directories
 node_modules/
-
-# local environment variable files
-.env*.local

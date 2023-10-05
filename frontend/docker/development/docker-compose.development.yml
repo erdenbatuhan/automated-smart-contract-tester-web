@@ -1,22 +1,17 @@
 version: "3"
+
 services:
   # Frontend
   frontend:
     container_name: frontend # Keep this the same with the service name for better compatibility with both Docker Swarm and Compose configurations
     build:
       context: .
-      dockerfile: docker/dev/Dockerfile.dev
+      dockerfile: docker/development/Dockerfile.development
       args:
         PORT: ${PORT}
     restart: unless-stopped
-    networks:
-      application-network: # External network for accessing the backend application
     ports:
       - "${PORT}:${PORT}"
     environment:
       PORT: ${PORT}
       NODE_ENV: development
-networks:
-  application-network: # External network for accessing the backend application
-    name: ${BACKEND_NETWORK}
-    external: true
