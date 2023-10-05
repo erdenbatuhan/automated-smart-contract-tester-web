@@ -12,6 +12,7 @@ This application relies on [Automated Smart Contract Tester](https://github.com/
   - [Start Docker Containers](#start-docker-containers)
   - [Stop Docker Containers](#stop-docker-containers)
   - [Clean Up Docker Resources](#clean-up-docker-resources)
+- [Tips for Production Deployment](#tips-for-production-deployment)
 - [(Optional) Modifying Environment Variables](#optional-modifying-environment-variables)
 
 ## Local Development
@@ -71,6 +72,21 @@ This command will remove images, containers, volumes (e.g., dangling volumes suc
 ```bash
 make clean
 ```
+
+## Tips for Production Deployment
+
+When transitioning to a production environment, it’s crucial to adjust the backend host, as it will no longer default to `localhost`.
+
+**Configure Environment Variables:** Create a `.env.production.local` file on the deployed machine. Depending on your production domain name, set the following variables in accordance with your host machine's configuration:
+
+```bash
+PORT=80 # No need to reassign if it matches the .env.production file
+
+# Vue App Environment Variables (Utilized by the Vue.js application)
+VUE_APP_BACKEND_HOST=http://<YOUR_DOMAIN_NAME_OR_IP>:${PORT}
+```
+
+Ensure `<YOUR_DOMAIN_NAME_OR_IP>` is replaced with your actual domain name or IP address, ensuring the Vue.js application can accurately reference the backend service in a production setting.
 
 ## (Optional) Modifying Environment Variables
 
